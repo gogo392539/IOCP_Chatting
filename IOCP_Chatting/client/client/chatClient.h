@@ -1,24 +1,18 @@
 #pragma once
 
+#include "netDef.h"
+
 class C_CHAT_CLIENT
 {
 private:
 	static const char* SERVER_IP;
-	enum
-	{
-		E_BUF_MAX = 256,
-		E_PACKET_MAX = 264,
-		E_SERVER_PORT = 20000
-	};
-	struct packet
-	{
-		int nId;
-		int nBufLen;
-		char dataBuf[E_BUF_MAX];
-	};
+
 private:
 	SOCKET m_sockClient;
-	std::thread* threadRecv;
+	std::thread* m_threadRecv;
+	std::thread* m_threadSend;
+
+	int m_nMyId;
 
 public:
 	C_CHAT_CLIENT();
@@ -26,8 +20,10 @@ public:
 	void release();
 
 private:
-	void makeRecvThread();
-	void workerThread();
+	void sendLoginMessage();
+	void makeThread();
+	void workerRecvThread();
+	void workerSendThread();
 	void errorMessage(const char *msg, int err_no, int line);
 	
 

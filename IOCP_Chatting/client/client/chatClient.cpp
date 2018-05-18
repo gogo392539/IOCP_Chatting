@@ -4,7 +4,10 @@ const char* C_CHAT_CLIENT::SERVER_IP = "127.0.0.1";
 
 C_CHAT_CLIENT::C_CHAT_CLIENT() :
 	m_sockClient(),
-	threadRecv()
+	m_threadRecv(),
+	m_threadSend(),
+	m_nMyId(0)
+
 {
 }
 
@@ -37,37 +40,88 @@ void C_CHAT_CLIENT::init()
 		errorMessage("connect error", nErrNo, __LINE__);
 	}
 
-	makeRecvThread();
+	sendLoginMessage();
 
-	while (1) 
-	{
-		packet sPacket = {};
-		scanf_s("%s", sPacket.dataBuf, E_BUF_MAX);
-		send(m_sockClient, (const char*)&sPacket, E_PACKET_MAX, 0);
-	}
+	makeThread();
 }
 
 void C_CHAT_CLIENT::release()
 {
-	threadRecv->join();
-	delete threadRecv;
+	m_threadRecv->join();
+	delete m_threadRecv;
+	m_threadRecv = nullptr;
+	m_threadSend->join();
+	delete m_threadSend;
+	m_threadSend = nullptr;
 
 	closesocket(m_sockClient);
 	WSACleanup();
 }
 
-void C_CHAT_CLIENT::makeRecvThread()
+void C_CHAT_CLIENT::sendLoginMessage()
 {
-	threadRecv = new std::thread(&C_CHAT_CLIENT::workerThread, this);
+	S_PACKET sPacket = {};
+	sPacket.eType = E_PACKET_TYPE::E_LOGIN;
+	sPacket.nBufLen = 12;
+	scanf_s("%d", &sPacket.nId);
+	m_nMyId = sPacket.nId;
+	int nRetval = send(m_sockClient, (const char*)&sPacket, sPacket.nBufLen, 0);
+	if (nRetval == SOCKET_ERROR)
+	{
+		int nErrNo = WSAGetLastError();
+		errorMessage("send error", nErrNo, __LINE__);
+	}
 }
 
-void C_CHAT_CLIENT::workerThread()
+void C_CHAT_CLIENT::makeThread()
+{
+	m_threadRecv = new std::thread(&C_CHAT_CLIENT::workerRecvThread, this);
+	m_threadSend = new std::thread(&C_CHAT_CLIENT::workerSendThread, this);
+}
+
+void C_CHAT_CLIENT::workerRecvThread()
 {
 	while (1)
 	{
-		packet sPacket = {};
-		recv(m_sockClient, (char*)&sPacket, E_PACKET_MAX, 0);
-		printf("%s \n", sPacket.dataBuf);
+		S_PACKET sPacket = {};
+		int nRetval = recv(m_sockClient, (char*)&sPacket, E_PACKET_MAX, 0);
+		if (nRetval == SOCKET_ERROR)
+		{
+			int nErrNo = WSAGetLastError();
+			errorMessage("recv error", nErrNo, __LINE__);
+		}
+		
+		if (sPacket.eType == E_PACKET_TYPE::E_LOGIN)
+		{
+			printf("ID : %d Login \n", sPacket.nId);
+			//m_nMyId = sPacket.nId;
+		}
+		else if (sPacket.eType == E_PACKET_TYPE::E_LOGOUT)
+		{
+			printf("ID : %d Logout \n", sPacket.nId);
+		}
+		else if (sPacket.eType == E_PACKET_TYPE::E_DATA)
+		{
+			printf_s("ID : %d -> %s \n", sPacket.nId, sPacket.dataBuf);
+		}
+	}
+}
+
+void C_CHAT_CLIENT::workerSendThread()
+{
+	while (1)
+	{
+		S_PACKET sPacket = {};
+		sPacket.eType = E_PACKET_TYPE::E_DATA;
+		sPacket.nId = m_nMyId;
+		scanf_s("%s", sPacket.dataBuf, E_BUF_MAX);
+		sPacket.nBufLen = strlen(sPacket.dataBuf) + 12;
+		int nRetval = send(m_sockClient, (const char*)&sPacket, sPacket.nBufLen, 0);
+		if (nRetval == SOCKET_ERROR)
+		{
+			int nErrNo = WSAGetLastError();
+			errorMessage("send error", nErrNo, __LINE__);
+		}
 	}
 }
 

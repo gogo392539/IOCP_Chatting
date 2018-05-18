@@ -1,43 +1,25 @@
 #pragma once
 
+#include "netDef.h"
+
 class C_IOCPSERVER
 {
-private:
-	enum
-	{
-		E_BUF_MAX = 256,
-		E_PACKET_MAX = 264,
-
-		E_SERVER_PORT = 20000,
-	};
-	struct packet
-	{
-		int nId;
-		int nBufLen;
-		char dataBuf[E_BUF_MAX];
-	};
-	struct S_HANDLE_DATE
-	{
-		SOCKET sockClient;
-		int nId;
-	};
-	struct S_IO_DATA
-	{
-		OVERLAPPED overlapped;
-		WSABUF wsaBuf;
-		packet packetData;
-	};
-
 private:
 	SOCKET	m_sockListen;
 	HANDLE	m_hIOCP;
 	int		m_nCountOfThread;
 	std::mutex	m_mtxData;
 	std::vector<std::thread*> m_vecWorkerThreads;
+	std::map<int, S_HANDLE_DATE*> m_mapClients;
+//	void(C_IOCPSERVER::*m_pSendMessage[(int)E_PACKET_TYPE::E_MAX])(S_IO_DATA* pIoData);
 
 private:
 	void acceptClient();
 	void makeWorkerThread();
+//	void sendLoginMessage(S_IO_DATA* pIoData);
+//	void sendLogoutMessage(S_IO_DATA* pIoData);
+//	void sendDataMessage(S_IO_DATA* pIoData);
+	void sendMessage(S_PACKET * pPacket);
 	void workerThreadJoin();
 	void workerThread();
 
