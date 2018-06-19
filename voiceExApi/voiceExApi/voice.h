@@ -14,20 +14,18 @@ private:
 	WAVEHDR*		m_arWaveHdrBuf[MAX_QUEUE_COUNT];
 
 	HWAVEOUT		m_hWaveOut;
-//	WAVEFORMATEX	m_waveOutFormat;
 	WAVEHDR*		m_arWaveOutHdrBuf[MAX_QUEUE_COUNT];
 
-//	DWORD			m_dwVoiceLen;
-	bool			m_bEndRecord;
+	bool			m_bWaveInStart;
+	bool			m_bWaveOutStart;
 	int				m_nOutIdx;
-//	BYTE*			m_pSoundBuf[QUEUE_SIZE * 10];
 
 public:
 	C_VOICE();
 	void init();
-	bool openDevice(HWND hWnd);
-	void startRecord();
-	void stopRecord();
+	bool openInDevice(HWND hWnd);
+	void waveInVoice();
+	void waveInEnd();
 	void reuseQueue(WAVEHDR* waveHdrBuf);
 	void closeDevice();
 	void release();
@@ -36,5 +34,6 @@ public:
 	void waveOutVoice(char* pBuf, int nBufSize);
 	void waveOutEnd();
 
-	bool isStart();
+	bool isWaveInStart();
+	bool isWaveOutStart();
 };

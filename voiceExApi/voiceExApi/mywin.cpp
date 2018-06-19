@@ -39,15 +39,19 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_LBUTTONDOWN:
-		m_cVoice.openDevice(hWnd);
-		m_cVoice.openOutDevice(hWnd);
+		if (!m_cVoice.isWaveInStart())
+		{
+			m_cVoice.openInDevice(hWnd);
+			m_cVoice.openOutDevice(hWnd);
+		}
 		break;
 	case WM_RBUTTONDOWN:
-		m_cVoice.stopRecord();
+		if(m_cVoice.isWaveOutStart())
+			m_cVoice.waveInEnd();
 		break;
 
 	case MM_WIM_OPEN:
-		m_cVoice.startRecord();
+		m_cVoice.waveInVoice();
 		break;
 	case MM_WIM_DATA:
 	{

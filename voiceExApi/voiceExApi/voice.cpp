@@ -4,8 +4,8 @@ C_VOICE::C_VOICE() :
 	m_hWaveIn(nullptr),
 	m_waveFormat{},
 	m_arWaveHdrBuf{},
-//	m_dwVoiceLen(0),
-	m_bEndRecord(),
+	m_bWaveInStart(false),
+	m_bWaveOutStart(false),
 	m_hWaveOut(nullptr),
 	m_nOutIdx(0),
 	m_arWaveOutHdrBuf{}
@@ -39,17 +39,19 @@ void C_VOICE::init()
 	
 }
 
-bool C_VOICE::openDevice(HWND hWnd)
+bool C_VOICE::openInDevice(HWND hWnd)
 {
 	MMRESULT mResult = waveInOpen(&m_hWaveIn, (UINT)WAVE_MAPPER, &m_waveFormat, 
 		(DWORD)hWnd, NULL, (DWORD)CALLBACK_WINDOW);
 	if (mResult != MMSYSERR_NOERROR)
 		return false;
 
+	m_bWaveInStart = true;
+
 	return true;
 }
 
-void C_VOICE::startRecord()
+void C_VOICE::waveInVoice()
 {
 	for (int i = 0; i < MAX_QUEUE_COUNT; i++)
 	{
@@ -60,7 +62,7 @@ void C_VOICE::startRecord()
 	waveInStart(m_hWaveIn);
 }
 
-void C_VOICE::stopRecord()
+void C_VOICE::waveInEnd()
 {
 	waveInStop(m_hWaveIn);
 	waveInReset(m_hWaveIn);
@@ -68,7 +70,7 @@ void C_VOICE::stopRecord()
 	{
 		waveInUnprepareHeader(m_hWaveIn, m_arWaveHdrBuf[i], sizeof(WAVEHDR));
 	}
-	m_bEndRecord = true;
+	
 	closeDevice();
 }
 
@@ -82,6 +84,7 @@ void C_VOICE::closeDevice()
 {
 	waveInClose(m_hWaveIn);
 	m_hWaveIn = nullptr;
+	m_bWaveInStart = true;
 }
 
 void C_VOICE::release()
@@ -102,6 +105,9 @@ bool C_VOICE::openOutDevice(HWND hWnd)
 		(DWORD)hWnd, NULL, (DWORD)CALLBACK_WINDOW);
 	if (mResult != MMSYSERR_NOERROR)
 		return false;
+
+	m_bWaveOutStart = true;
+
 	return false;
 }
 
@@ -129,9 +135,15 @@ void C_VOICE::waveOutEnd()
 	waveOutClose(m_hWaveOut);
 	m_hWaveOut = nullptr;
 	m_nOutIdx = 0;
+	m_bWaveOutStart = false;
 }
 
-bool C_VOICE::isStart()
+bool C_VOICE::isWaveInStart()
 {
-	return m_bEndRecord;
+	return m_bWaveInStart;
+}
+
+bool C_VOICE::isWaveOutStart()
+{
+	return m_bWaveOutStart;
 }
