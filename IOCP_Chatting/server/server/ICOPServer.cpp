@@ -7,7 +7,6 @@ C_IOCPSERVER::C_IOCPSERVER() :
 	m_mtxData(),
 	m_vecWorkerThreads(),
 	m_mapClients()
-	//m_pSendMessage{}
 {
 	m_vecWorkerThreads.clear();
 	m_mapClients.clear();
@@ -57,10 +56,6 @@ void C_IOCPSERVER::init()
 		errorMessage("listen Error", nErrNo, __LINE__);
 	}
 
-	/*m_pSendMessage[(int)E_PACKET_TYPE::E_LOGIN] = &C_IOCPSERVER::sendLoginMessage;
-	m_pSendMessage[(int)E_PACKET_TYPE::E_LOGOUT] = &C_IOCPSERVER::sendLogoutMessage;
-	m_pSendMessage[(int)E_PACKET_TYPE::E_DATA] = &C_IOCPSERVER::sendDataMessage;*/
-
 	acceptClient();
 }
 
@@ -80,15 +75,12 @@ void C_IOCPSERVER::acceptClient()
 			errorMessage("WSAAccept Error", nErrNo, __LINE__);
 		}
 
-
-
-
 		nAcceptCount++;
 		printf("user %d accpet \n", nAcceptCount);
 
 		S_HANDLE_DATE* pHandleData = new S_HANDLE_DATE();
 		pHandleData->sockClient = sockClient;
-		pHandleData->nId = 0;
+		pHandleData->nId = nAcceptCount;
 		pHandleData->iter = m_mapClients.find(pHandleData->nId);
 		pHandleData->iter = m_mapClients.insert(pHandleData->iter, std::map<int, S_HANDLE_DATE*>::value_type(nAcceptCount, pHandleData));
 
@@ -127,45 +119,6 @@ void C_IOCPSERVER::makeWorkerThread()
 		m_vecWorkerThreads.push_back(new std::thread(&C_IOCPSERVER::workerThread, this));
 	}
 }
-
-//void C_IOCPSERVER::sendLoginMessage(S_IO_DATA * pIoData)
-//{
-//	DWORD dwFlag = 0;
-//	DWORD dwSendBytes = 0;
-//	int nRetval = WSASend(pHandleData->sockClient, &pIoData->wsaBuf, 1, &dwSendBytes, dwFlag, NULL, NULL);
-//	if (nRetval == SOCKET_ERROR) {
-//		int err_no = WSAGetLastError();
-//		if (ERROR_IO_PENDING != err_no) {
-//			errorMessage("SendPacket::WSASend", err_no, __LINE__);
-//		}
-//	}
-//}
-//
-//void C_IOCPSERVER::sendLogoutMessage(S_IO_DATA * pIoData)
-//{
-//	DWORD dwFlag = 0;
-//	DWORD dwSendBytes = 0;
-//	int nRetval = WSASend(pHandleData->sockClient, &pIoData->wsaBuf, 1, &dwSendBytes, dwFlag, NULL, NULL);
-//	if (nRetval == SOCKET_ERROR) {
-//		int err_no = WSAGetLastError();
-//		if (ERROR_IO_PENDING != err_no) {
-//			errorMessage("SendPacket::WSASend", err_no, __LINE__);
-//		}
-//	}
-//}
-//
-//void C_IOCPSERVER::sendDataMessage(S_IO_DATA * pIoData)
-//{
-//	DWORD dwFlag = 0;
-//	DWORD dwSendBytes = 0;
-//	int nRetval = WSASend(pHandleData->sockClient, &pIoData->wsaBuf, 1, &dwSendBytes, dwFlag, NULL, NULL);
-//	if (nRetval == SOCKET_ERROR) {
-//		int err_no = WSAGetLastError();
-//		if (ERROR_IO_PENDING != err_no) {
-//			errorMessage("SendPacket::WSASend", err_no, __LINE__);
-//		}
-//	}
-//}
 
 void C_IOCPSERVER::sendMessage(S_PACKET * pPacket)
 {

@@ -63,10 +63,17 @@ LRESULT C_MYWIN::myLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		MoveWindow(m_hWndComm, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
 	}
 		break;
+	case WM_GETMINMAXINFO:
+		//윈도우 크기 고정
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = m_nWinWidth;
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = m_nWinHeight;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = m_nWinWidth;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = m_nWinHeight;
+		break;
 	case WM_COMMAND:
 		switch (GET_X_LPARAM(wParam))
 		{
-		case IDC_LOGIN_BTS_OK:
+		case IDC_LOGIN_BTN_OK:
 		{
 			m_cLoginInfo.getEditText();
 
@@ -80,10 +87,10 @@ LRESULT C_MYWIN::myLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			ShowWindow(hWnd, SW_HIDE);
 		}
 			break;
-		case IDC_LOGIN_BTS_CANCEL:
+		case IDC_LOGIN_BTN_CANCEL:
 			DestroyWindow(hWnd);
 			break;
-		case IDC_LOGIN_BTS_JOIN:
+		case IDC_LOGIN_BTN_JOIN:
 			m_cLoginInfo.initEditText();
 
 			ShowWindow(m_hWndJoin, SW_SHOWDEFAULT);
@@ -135,10 +142,17 @@ LRESULT C_MYWIN::myJoinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		MoveWindow(m_hWndComm, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
 	}
 	break;
+	case WM_GETMINMAXINFO:
+		//윈도우 크기 고정
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = m_nWinWidth;
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = m_nWinHeight;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = m_nWinWidth;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = m_nWinHeight;
+		break;
 	case WM_COMMAND:
 		switch (GET_X_LPARAM(wParam))
 		{
-		case IDC_JOIN_BTS_OK:
+		case IDC_JOIN_BTN_OK:
 		{
 			if (!m_cJoinInfo.idOverlapCheck())
 			{
@@ -173,17 +187,17 @@ LRESULT C_MYWIN::myJoinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
 		}
 			break;
-		case IDC_JOIN_BTS_CANCEL:
+		case IDC_JOIN_BTN_CANCEL:
 			m_cJoinInfo.initEditText();
 
 			ShowWindow(hWnd, SW_HIDE);
 			ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
 			break;
-		case IDC_JOIN_BTS_ID_OVERLAP:
+		case IDC_JOIN_BTN_ID_OVERLAP:
 			//ID 중복 확인 network
 
 			break;
-		case IDC_JOIN_BTS_NICK_OVERLAP:
+		case IDC_JOIN_BTN_NICK_OVERLAP:
 			//NICKNAME 중복 확인 network
 
 			break;
@@ -209,6 +223,7 @@ LRESULT C_MYWIN::myJoinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 LRESULT C_MYWIN::wndCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	return m_pMyWin->myCommProc(hWnd, message, wParam, lParam);
+
 }
 
 LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -232,23 +247,30 @@ LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		MoveWindow(m_hWndJoin, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
 	}
 	break;
+	case WM_GETMINMAXINFO:
+		//윈도우 크기 고정
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = m_nWinWidth;
+		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = m_nWinHeight;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = m_nWinWidth;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = m_nWinHeight;
+		break;
 	case WM_COMMAND:
 		switch (GET_X_LPARAM(wParam))
 		{
-		case IDC_COMM_BTS_OK:
+		case IDC_COMM_BTN_OK:
 			m_cCommInfo.transInputText();
 			break;
-		case IDC_COMM_BTS_CANCEL:
+		case IDC_COMM_BTN_CANCEL:
 			m_cCommInfo.initEditText();
 			//voice network
 
 			ShowWindow(hWnd, SW_HIDE);
 			ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
 			break;
-		case IDC_COMM_BTS_VOICE_OK:
+		case IDC_COMM_BTN_VOICE_OK:
 			//voice network
 			break;
-		case IDC_COMM_BTS_VOICE_CANCEL:
+		case IDC_COMM_BTN_VOICE_CANCEL:
 			//voice network
 			break;
 		}
@@ -279,7 +301,7 @@ bool C_MYWIN::init(HINSTANCE hInstance)
 	wcexLogin.cbClsExtra = 0;
 	wcexLogin.cbWndExtra = 0;
 	wcexLogin.hInstance = hInstance;
-	wcexLogin.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOWFORM));
+	wcexLogin.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CHATCLIENT));
 	wcexLogin.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcexLogin.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcexLogin.lpszMenuName = 0;
