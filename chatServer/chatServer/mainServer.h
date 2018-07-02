@@ -2,7 +2,7 @@
 
 #include "netDef.h"
 
-class C_IOCPSERVER
+class C_MAINSERVER
 {
 private:
 	SOCKET		m_sockListen;
@@ -23,8 +23,8 @@ private:
 	void errorMessage(const char *msg, int err_no, int line);
 
 public:
-	C_IOCPSERVER();
+	C_MAINSERVER();
 	void init();
 	void release();
-	
+
 };

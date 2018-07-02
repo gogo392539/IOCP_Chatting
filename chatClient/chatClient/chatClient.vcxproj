@@ -148,20 +148,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="chatClient.h" />
-    <ClInclude Include="commInfo.h" />
-    <ClInclude Include="joinInfo.h" />
-    <ClInclude Include="loginInfo.h" />
     <ClInclude Include="mywin.h" />
+    <ClInclude Include="netChat.h" />
+    <ClInclude Include="netDef.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="chatClient.cpp" />
-    <ClCompile Include="commInfo.cpp" />
-    <ClCompile Include="joinInfo.cpp" />
-    <ClCompile Include="loginInfo.cpp" />
+    <ClCompile Include="commForm.cpp" />
+    <ClCompile Include="joinForm.cpp" />
+    <ClCompile Include="loginForm.cpp" />
     <ClCompile Include="mywin.cpp" />
+    <ClCompile Include="netChat.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -7,13 +7,25 @@ C_MYWIN::C_MYWIN() :
 	m_hWndLogin(NULL),
 	m_hWndJoin(NULL),
 	m_hWndComm(NULL),
+	m_hEditLoginId(NULL),
+	m_hEditLoginPw(NULL),
+	m_hEditJoinId(NULL),
+	m_hEditJoinNick(NULL),
+	m_hEditJoinPw1(NULL),
+	m_hEditJoinPw2(NULL),
+	m_hEditCommChat(NULL),
+	m_hEditCommInputText(NULL),
 	m_nWinHeight(0),
 	m_nWinPosX(0),
 	m_nWinPosY(0),
 	m_nWinWidth(0),
-	m_cLoginInfo(),
-	m_cJoinInfo(),
-	m_cCommInfo()
+	m_bIdOverlapCheck(),
+	m_bNickOverlapCheck(),
+	m_strInputText{},
+	m_strChatText{},
+	m_nInputTextLen(),
+	m_bVoiceStart(),
+	m_bVoiceEnd()
 {
 }
 
@@ -35,261 +47,6 @@ void C_MYWIN::releaseWin()
 		delete m_pMyWin;
 		m_pMyWin = nullptr;
 	}
-}
-
-LRESULT C_MYWIN::wndLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	return m_pMyWin->myLoginProc(hWnd, message, wParam, lParam);
-}
-
-LRESULT C_MYWIN::myLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-	case WM_CREATE:
-		m_cLoginInfo.initLoginControl(hWnd, m_hInstance);
-		break;
-	case WM_SIZING:
-	{
-		RECT * pRectSize = (RECT*)lParam;
-		MoveWindow(m_hWndJoin, pRectSize->left, pRectSize->top, pRectSize->right - pRectSize->left, pRectSize->bottom - pRectSize->top, false);
-		MoveWindow(m_hWndComm, pRectSize->left, pRectSize->top, pRectSize->right - pRectSize->left, pRectSize->bottom - pRectSize->top, false);
-	}
-		break;
-	case WM_MOVING:
-	{
-		RECT * pRectMove = (RECT*)lParam;
-		MoveWindow(m_hWndJoin, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
-		MoveWindow(m_hWndComm, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
-	}
-		break;
-	case WM_GETMINMAXINFO:
-		//윈도우 크기 고정
-		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = m_nWinWidth;
-		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = m_nWinHeight;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.x = m_nWinWidth;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.y = m_nWinHeight;
-		break;
-	case WM_COMMAND:
-		switch (GET_X_LPARAM(wParam))
-		{
-		case IDC_LOGIN_BTN_OK:
-		{
-			m_cLoginInfo.getEditText();
-
-			
-
-			//로그인 network 추가
-
-			m_cLoginInfo.initEditText();
-
-			ShowWindow(m_hWndComm, SW_SHOWDEFAULT);
-			ShowWindow(hWnd, SW_HIDE);
-		}
-			break;
-		case IDC_LOGIN_BTN_CANCEL:
-			DestroyWindow(hWnd);
-			break;
-		case IDC_LOGIN_BTN_JOIN:
-			m_cLoginInfo.initEditText();
-
-			ShowWindow(m_hWndJoin, SW_SHOWDEFAULT);
-			ShowWindow(hWnd, SW_HIDE);
-			break;
-		}
-		break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
-		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다.
-		EndPaint(hWnd, &ps);
-	}
-	break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
-}
-
-LRESULT C_MYWIN::wndJoinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	return m_pMyWin->myJoinProc(hWnd, message, wParam, lParam);
-}
-
-LRESULT C_MYWIN::myJoinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-	case WM_CREATE:
-		m_cJoinInfo.initJoinControl(hWnd, m_hInstance);
-
-		break;
-	case WM_SIZING:
-	{
-		RECT * pRectSize = (RECT*)lParam;
-		MoveWindow(m_hWndLogin, pRectSize->left, pRectSize->top, pRectSize->right - pRectSize->left, pRectSize->bottom - pRectSize->top, false);
-		MoveWindow(m_hWndComm, pRectSize->left, pRectSize->top, pRectSize->right - pRectSize->left, pRectSize->bottom - pRectSize->top, false);
-	}
-	break;
-	case WM_MOVING:
-	{
-		RECT * pRectMove = (RECT*)lParam;
-		MoveWindow(m_hWndLogin, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
-		MoveWindow(m_hWndComm, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
-	}
-	break;
-	case WM_GETMINMAXINFO:
-		//윈도우 크기 고정
-		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = m_nWinWidth;
-		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = m_nWinHeight;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.x = m_nWinWidth;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.y = m_nWinHeight;
-		break;
-	case WM_COMMAND:
-		switch (GET_X_LPARAM(wParam))
-		{
-		case IDC_JOIN_BTN_OK:
-		{
-			if (!m_cJoinInfo.idOverlapCheck())
-			{
-				MessageBox(hWnd, L"ID 중복 확인 하세요", L"회원가입 실패", MB_OK);
-				break;
-			}
-			else
-			{
-				if (!m_cJoinInfo.NickOverlapCheck())
-				{
-					MessageBox(hWnd, L"Nick Name 중복 확인 하세요", L"회원가입 실패", MB_OK);
-					break;
-				}
-			}
-
-			m_cJoinInfo.getEditText();
-
-			if (!m_cJoinInfo.pwEqualCheck())
-			{
-				MessageBox(hWnd, L"Password 확인 틀림", L"회원가입 실패", MB_OK);
-				break;
-			}
-
-			//회원가입 network
-
-
-			m_cJoinInfo.initEditText();
-
-			MessageBox(hWnd, L"회원가입 완료", L"회원가입", MB_OK);
-			
-			ShowWindow(hWnd, SW_HIDE);
-			ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
-		}
-			break;
-		case IDC_JOIN_BTN_CANCEL:
-			m_cJoinInfo.initEditText();
-
-			ShowWindow(hWnd, SW_HIDE);
-			ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
-			break;
-		case IDC_JOIN_BTN_ID_OVERLAP:
-			//ID 중복 확인 network
-
-			break;
-		case IDC_JOIN_BTN_NICK_OVERLAP:
-			//NICKNAME 중복 확인 network
-
-			break;
-		}
-		break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
-		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다.
-		EndPaint(hWnd, &ps);
-	}
-	break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
-}
-
-LRESULT C_MYWIN::wndCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	return m_pMyWin->myCommProc(hWnd, message, wParam, lParam);
-
-}
-
-LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-	case WM_CREATE:
-		m_cCommInfo.initCommControl(hWnd, m_hInstance);
-		break;
-	case WM_SIZING:
-	{
-		RECT * pRectSize = (RECT*)lParam;
-		MoveWindow(m_hWndLogin, pRectSize->left, pRectSize->top, pRectSize->right - pRectSize->left, pRectSize->bottom - pRectSize->top, false);
-		MoveWindow(m_hWndJoin, pRectSize->left, pRectSize->top, pRectSize->right - pRectSize->left, pRectSize->bottom - pRectSize->top, false);
-	}
-	break;
-	case WM_MOVING:
-	{
-		RECT * pRectMove = (RECT*)lParam;
-		MoveWindow(m_hWndLogin, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
-		MoveWindow(m_hWndJoin, pRectMove->left, pRectMove->top, pRectMove->right - pRectMove->left, pRectMove->bottom - pRectMove->top, false);
-	}
-	break;
-	case WM_GETMINMAXINFO:
-		//윈도우 크기 고정
-		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = m_nWinWidth;
-		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = m_nWinHeight;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.x = m_nWinWidth;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.y = m_nWinHeight;
-		break;
-	case WM_COMMAND:
-		switch (GET_X_LPARAM(wParam))
-		{
-		case IDC_COMM_BTN_OK:
-			m_cCommInfo.transInputText();
-			break;
-		case IDC_COMM_BTN_CANCEL:
-			m_cCommInfo.initEditText();
-			//voice network
-
-			ShowWindow(hWnd, SW_HIDE);
-			ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
-			break;
-		case IDC_COMM_BTN_VOICE_OK:
-			//voice network
-			break;
-		case IDC_COMM_BTN_VOICE_CANCEL:
-			//voice network
-			break;
-		}
-		break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
-		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다.
-		EndPaint(hWnd, &ps);
-	}
-	break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
 }
 
 bool C_MYWIN::init(HINSTANCE hInstance)

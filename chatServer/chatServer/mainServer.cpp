@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-C_IOCPSERVER::C_IOCPSERVER() :
+C_MAINSERVER::C_MAINSERVER() :
 	m_sockListen(0),
 	m_hIOCP(nullptr),
 	m_nCountOfThread(0),
@@ -12,12 +12,12 @@ C_IOCPSERVER::C_IOCPSERVER() :
 	m_mapClients.clear();
 }
 
-void C_IOCPSERVER::init()
+void C_MAINSERVER::init()
 {
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 	{
-		printf("[ WSAStartup Error - %d ]", __LINE__); 
+		printf("[ WSAStartup Error - %d ]", __LINE__);
 	}
 
 	m_hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 0);
@@ -43,7 +43,7 @@ void C_IOCPSERVER::init()
 
 	int nRetval = 0;
 	nRetval = bind(m_sockListen, (SOCKADDR*)&sockAddrListen, sizeof(SOCKADDR_IN));
-	if(nRetval == SOCKET_ERROR)
+	if (nRetval == SOCKET_ERROR)
 	{
 		int nErrNo = WSAGetLastError();
 		errorMessage("bind Error", nErrNo, __LINE__);
@@ -59,7 +59,7 @@ void C_IOCPSERVER::init()
 	acceptClient();
 }
 
-void C_IOCPSERVER::acceptClient()
+void C_MAINSERVER::acceptClient()
 {
 	DWORD dwFlag;
 	int nAcceptCount = 0;
@@ -103,7 +103,7 @@ void C_IOCPSERVER::acceptClient()
 	}
 }
 
-void C_IOCPSERVER::release()
+void C_MAINSERVER::release()
 {
 	workerThreadJoin();
 
@@ -111,16 +111,16 @@ void C_IOCPSERVER::release()
 	WSACleanup();
 }
 
-void C_IOCPSERVER::makeWorkerThread()
+void C_MAINSERVER::makeWorkerThread()
 {
 	m_vecWorkerThreads.reserve(m_nCountOfThread);
 	for (int i = 0; i < m_nCountOfThread; i++)
 	{
-		m_vecWorkerThreads.push_back(new std::thread(&C_IOCPSERVER::workerThread, this));
+		m_vecWorkerThreads.push_back(new std::thread(&C_MAINSERVER::workerThread, this));
 	}
 }
 
-void C_IOCPSERVER::sendMessage(S_PACKET * pPacket)
+void C_MAINSERVER::sendMessage(S_PACKET * pPacket)
 {
 	S_PACKET sPacket = {};
 	memcpy(&sPacket, pPacket, pPacket->nBufLen);
@@ -129,7 +129,7 @@ void C_IOCPSERVER::sendMessage(S_PACKET * pPacket)
 	wsaBuf.buf = (char*)&sPacket;
 	DWORD dwFlag = 0;
 	DWORD dwSendBytes = 0;
-	
+
 	std::map<int, S_HANDLE_DATE*>::iterator iter = m_mapClients.begin();
 	while (iter != m_mapClients.end())
 	{
@@ -142,10 +142,10 @@ void C_IOCPSERVER::sendMessage(S_PACKET * pPacket)
 		}
 	}
 
-	
+
 }
 
-void C_IOCPSERVER::workerThreadJoin()
+void C_MAINSERVER::workerThreadJoin()
 {
 	std::vector<std::thread*>::iterator iter = m_vecWorkerThreads.begin();
 	while (iter != m_vecWorkerThreads.end())
@@ -155,7 +155,7 @@ void C_IOCPSERVER::workerThreadJoin()
 	}
 }
 
-void C_IOCPSERVER::workerThread()
+void C_MAINSERVER::workerThread()
 {
 	HANDLE hCompletionPort = (HANDLE)m_hIOCP;
 	S_HANDLE_DATE* pHandleData = nullptr;
@@ -164,15 +164,15 @@ void C_IOCPSERVER::workerThread()
 	DWORD dwFlag = 0;
 	DWORD dwSendBytes = 0;
 
-	printf("worker Thread\n");
+	//printf("worker Thread\n");
 
 	while (1)
 	{
-		BOOL bResult =  GetQueuedCompletionStatus(hCompletionPort, &dwBytesTransferred, (PULONG_PTR)&pHandleData,
+		BOOL bResult = GetQueuedCompletionStatus(hCompletionPort, &dwBytesTransferred, (PULONG_PTR)&pHandleData,
 			(LPOVERLAPPED*)&pIoData, INFINITE);
 		if (dwBytesTransferred == 0)
 		{
-			printf("종료 \n");
+			//printf("종료 \n");
 
 			dwFlag = 0;
 			dwSendBytes = 0;
@@ -206,7 +206,7 @@ void C_IOCPSERVER::workerThread()
 			pHandleData = nullptr;
 			delete pIoData;
 			pIoData = nullptr;
-			//continue;
+		//	continue;
 		}
 		else
 		{
@@ -223,7 +223,7 @@ void C_IOCPSERVER::workerThread()
 					}
 				}
 			}
-			else if(pIoData->packetData.eType == E_PACKET_TYPE::E_LOGOUT)
+			else if (pIoData->packetData.eType == E_PACKET_TYPE::E_LOGOUT)
 			{
 				dwFlag = 0;
 				dwSendBytes = 0;
@@ -272,7 +272,7 @@ void C_IOCPSERVER::workerThread()
 							}
 						}
 					}
-					
+
 					iter++;
 				}
 			}
@@ -284,7 +284,7 @@ void C_IOCPSERVER::workerThread()
 		pIoData->wsaBuf.buf = (char*)&pIoData->packetData;
 
 		dwFlag = 0;
-		
+
 		int nRetval = WSARecv(pHandleData->sockClient, &pIoData->wsaBuf, 1, NULL, &dwFlag, &pIoData->overlapped, NULL);
 		if (nRetval == SOCKET_ERROR)
 		{
@@ -296,7 +296,7 @@ void C_IOCPSERVER::workerThread()
 	}
 }
 
-void C_IOCPSERVER::errorMessage(const char *msg, int err_no, int line)
+void C_MAINSERVER::errorMessage(const char *msg, int err_no, int line)
 {
 	WCHAR *lpMsgBuf;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, err_no,
@@ -306,4 +306,3 @@ void C_IOCPSERVER::errorMessage(const char *msg, int err_no, int line)
 	LocalFree(lpMsgBuf);
 	exit(-1);
 }
-

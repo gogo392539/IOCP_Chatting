@@ -44,6 +44,7 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CREATE:
+	{
 		m_hEditUserJoinList = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 20, 10, 250, 300, hWnd,
 			(HMENU)IDC_EDIT_USERJOINLIST, m_hInstance, NULL);
 		m_hEditUserLoginList = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 300, 10, 250, 300, hWnd,
@@ -57,8 +58,10 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			(HMENU)IDC_BTN_SHOWLIST, m_hInstance, NULL);
 		m_hBtnEraseList = CreateWindow(TEXT("button"), L"List 지우기", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 435, 320, 100, 20, hWnd,
 			(HMENU)IDC_BTN_ERASELIST, m_hInstance, NULL);
+	}
 		break;
 	case WM_COMMAND:
+	{
 		switch (GET_X_LPARAM(wParam))
 		{
 		case IDC_BTN_SERVEREND:
@@ -74,13 +77,16 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			break;
 		}
+	}
 		break;
 	case WM_GETMINMAXINFO:
+	{
 		//윈도우 크기 고정
 		((MINMAXINFO*)lParam)->ptMaxTrackSize.x = 600;
 		((MINMAXINFO*)lParam)->ptMaxTrackSize.y = 400;
 		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 600;
 		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 400;
+	}
 		break;
 	case WM_PAINT:
 	{

@@ -1,13 +1,10 @@
 #pragma once
 
 #include <Windows.h>
-#include "loginInfo.h"
-#include "joinInfo.h"
-#include "commInfo.h"
 
 class C_MYWIN
 {
-private:
+private://basic handle
 	HINSTANCE	m_hInstance;
 	HWND		m_hWndLogin;
 	HWND		m_hWndJoin;
@@ -18,10 +15,37 @@ private:
 	int			m_nWinHeight;
 	int			m_nWinWidth;
 
-private:
-	C_LOGININFO m_cLoginInfo;
-	C_JOININFO	m_cJoinInfo;
-	C_COMMINFO	m_cCommInfo;
+private://login Handle
+	/*HWND m_hBtnOk;
+	HWND m_hBtnCancel;
+	HWND m_hBtnJoin;*/
+	HWND		m_hEditLoginId;
+	HWND		m_hEditLoginPw;
+
+private://join Handle
+	HWND		m_hEditJoinId;
+	HWND		m_hEditJoinNick;
+	HWND		m_hEditJoinPw1;
+	HWND		m_hEditJoinPw2;
+	bool		m_bIdOverlapCheck;
+	bool		m_bNickOverlapCheck;
+	/*HWND m_hBtnIdOverlap;
+	HWND m_hBtnNickOverlap;
+	HWND m_hBtnOk;
+	HWND m_hBtnCancel;*/
+
+private://comm Handle
+	/*HWND m_hBtnOk;
+	HWND m_hBtnCancel;
+	HWND m_hBtnVoiceOk;
+	HWND m_hBtnVoiceCancel;*/
+	HWND		m_hEditCommInputText;
+	HWND		m_hEditCommChat;
+	WCHAR		m_strInputText[128];
+	WCHAR		m_strChatText[2048];
+	int			m_nInputTextLen;
+	bool		m_bVoiceStart;
+	bool		m_bVoiceEnd;
 
 private:
 	static C_MYWIN* m_pMyWin;

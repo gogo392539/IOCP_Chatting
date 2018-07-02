@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="chatForm">
+      <UniqueIdentifier>{20cfe8c6-7c2e-4aba-97ac-f191141c6f59}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -27,16 +30,13 @@
     <ClInclude Include="chatClient.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="commInfo.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="joinInfo.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="loginInfo.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="mywin.h">
+      <Filter>chatForm</Filter>
+    </ClInclude>
+    <ClInclude Include="netChat.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="netDef.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,16 +47,19 @@
     <ClCompile Include="chatClient.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="commInfo.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="commForm.cpp">
+      <Filter>chatForm</Filter>
     </ClCompile>
-    <ClCompile Include="joinInfo.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="joinForm.cpp">
+      <Filter>chatForm</Filter>
     </ClCompile>
-    <ClCompile Include="loginInfo.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="loginForm.cpp">
+      <Filter>chatForm</Filter>
     </ClCompile>
     <ClCompile Include="mywin.cpp">
+      <Filter>chatForm</Filter>
+    </ClCompile>
+    <ClCompile Include="netChat.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
