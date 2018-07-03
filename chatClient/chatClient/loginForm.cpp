@@ -55,6 +55,7 @@ LRESULT C_MYWIN::myLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		{
 		case IDC_LOGIN_BTN_OK:
 		{
+			m_cNetChat.init();
 			WCHAR strId[13];
 			WCHAR strPw[13];
 			int nIdLen;
@@ -65,15 +66,26 @@ LRESULT C_MYWIN::myLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			nIdLen = lstrlenW(strId);
 			nPwLen = lstrlenW(strPw);
 
-
-
 			//로그인 network 추가
+			m_cNetChat.sendLoginMessage(strId, nIdLen, strPw, nPwLen);
+			while (1)
+			{
+				if (m_cNetChat.getLoginSuccessCheck())
+				{
+					ShowWindow(m_hWndComm, SW_SHOWDEFAULT);
+					ShowWindow(hWnd, SW_HIDE);
+					break;
+				}
+				else if (m_cNetChat.getLoginFailCheck())
+				{
+
+				}
+			}
+
+			
 
 			SetWindowText(m_hEditLoginId, L"");
 			SetWindowText(m_hEditLoginPw, L"");
-
-			ShowWindow(m_hWndComm, SW_SHOWDEFAULT);
-			ShowWindow(hWnd, SW_HIDE);
 		}
 		break;
 		case IDC_LOGIN_BTN_CANCEL:

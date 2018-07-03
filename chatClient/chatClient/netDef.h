@@ -2,73 +2,98 @@
 
 enum
 {
-	E_BUF_ID_MAX	= 13,
-	E_BUF_NICK_MAX	= 13,
-	E_BUF_PW_MAX	= 13,
-	E_BUF_CHAT_MAX	= 128,
-	E_PACKET_MAX	= 153,
-	E_SERVER_PORT	= 20000,
+	E_PACKET_TYPE_LENGTH = 4,
+	E_DATA_LENGTH = 4,
+	E_LOGOUT_PACKET_SIZE	= 8,
+	E_MAX_ID_LENGTH = 13,
+	E_MAX_NICK_LENGTH = 13,
+	E_MAX_PW_LENGTH = 13,
+	E_MAX_MSG_LENGTH = 128,
+	//	E_PACKET_MAX			= 516,
+	E_SERVER_PORT = 20000,
 };
 
 enum class E_PACKET_TYPE
 {
 	E_NONE,
-	E_LOGIN,
+	E_LOGIN_CALL,
 	E_LOGOUT,
-	E_DATA,
-	E_VOICE_ACTIVATION,
-	E_VOICE_DEACTIVATION,
+	E_LOGIN_SUCCESS,
+	E_LOGIN_FAIL,
+	E_VOICE_ACT,
+	E_VOICE_DEACT,
+	E_VOICE_ACT_CHECK,
+	E_VOICE_DEACT_CHECK,
+	E_MESSAGE,
 	E_MAX
 };
 
-struct S_PACKET//
-{
-	int nBufLen;
-	E_PACKET_TYPE eType;
-	int nId;
-	char dataBuf[E_BUF_CHAT_MAX];
-};
-
-struct S_PACKET_CHAT
+struct S_CTS_LOGIN_PACKET
 {
 	E_PACKET_TYPE	eType;
-	int				nNickLen;
-	WCHAR			strNick[E_BUF_NICK_MAX];
-	int				nChatLen;
-	WCHAR			strChat[E_BUF_CHAT_MAX];
-};
-
-struct S_PACKET_LOGIN
-{
-	E_PACKET_TYPE	eType;
+	int				nDataSize;
 	int				nIdLen;
-	WCHAR			strId[E_BUF_ID_MAX];
 	int				nPwLen;
-	WCHAR			strPw[E_BUF_PW_MAX];
+	WCHAR			strData[E_MAX_ID_LENGTH + E_MAX_PW_LENGTH];
 };
 
-struct S_PACKET_LOGOUT
+struct S_STC_LOGIN_PACKET
+{
+	E_PACKET_TYPE	eType;
+	int				nSerialId;
+};
+
+struct S_CTS_LOGOUT_PACKET
+{
+	E_PACKET_TYPE	eType;
+	int				nSerialId;
+};
+
+struct S_STC_LOGOUT_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nNickLen;
-	WCHAR			strNick[E_BUF_NICK_MAX];
+	WCHAR			strNick[E_MAX_ID_LENGTH];
 };
 
-struct S_PACKET_JOIN
+struct S_VOICE_PACKET
 {
-
+	E_PACKET_TYPE	eType;
+	int				nSerialId;
 };
+
+struct S_STC_MSG_PACKET
+{
+	E_PACKET_TYPE	eType;
+	int				nDataSize;
+	int				nNickLen;
+	int				nMgsLen;
+	WCHAR			strNick[E_MAX_NICK_LENGTH];
+	WCHAR			strMsg[E_MAX_MSG_LENGTH];
+};
+
+struct S_CTS_MSG_PACKET
+{
+	E_PACKET_TYPE	eType;
+	int				nDataSize;
+	int				nSerialId;
+	int				nMgsLen;
+	WCHAR			strMsg[E_MAX_MSG_LENGTH];
+};
+
+
+// IOCP_STRCUT
 
 struct S_HANDLE_DATE
 {
-	SOCKET sockClient;
-	int nId;
+	SOCKET			sockClient;
+	int				nId;
 	std::map<int, S_HANDLE_DATE*>::iterator iter;
 };
 
 struct S_IO_DATA
 {
-	OVERLAPPED overlapped;
-	WSABUF wsaBuf;
-	//S_PACKET packetData;
+	OVERLAPPED		overlapped;
+	WSABUF			wsaBuf;
+	E_PACKET_TYPE	eType;
 };

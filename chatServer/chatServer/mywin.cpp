@@ -10,7 +10,8 @@ C_MYWIN::C_MYWIN() :
 	m_hBtnServerStart(NULL),
 	m_hBtnShowList(NULL),
 	m_hEditUserJoinList(NULL),
-	m_hEditUserLoginList(NULL)
+	m_hEditUserLoginList(NULL),
+	m_cMainServer()
 {
 }
 
@@ -130,6 +131,7 @@ bool C_MYWIN::init(HINSTANCE hInstance)
 		return FALSE;
 
 	m_hInstance = hInstance;
+	m_cMainServer.init(m_hWnd);
 
 	ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	UpdateWindow(m_hWnd);
@@ -149,4 +151,5 @@ void C_MYWIN::updateMsg()
 
 void C_MYWIN::release()
 {
+	m_cMainServer.release();
 }

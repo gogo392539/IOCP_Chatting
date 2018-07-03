@@ -68,6 +68,10 @@ LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			break;
 		case IDC_COMM_BTN_CANCEL:
 		{
+			//m_cNetChat.initLoginCheck();
+			m_cNetChat.sendLogoutMessage();
+			m_cNetChat.release();
+
 			SetWindowText(m_hEditCommInputText, L"");
 			SetWindowText(m_hEditCommChat, L"");
 			//voice network

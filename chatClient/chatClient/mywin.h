@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include "chatClient.h"
 
 class C_MYWIN
 {
@@ -14,6 +15,9 @@ private://basic handle
 	int			m_nWinPosY;
 	int			m_nWinHeight;
 	int			m_nWinWidth;
+
+private:
+	C_NET_CHAT  m_cNetChat;
 
 private://login Handle
 	/*HWND m_hBtnOk;

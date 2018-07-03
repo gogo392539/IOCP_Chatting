@@ -8,23 +8,32 @@ private:
 	SOCKET		m_sockListen;
 	HANDLE		m_hIOCP;
 	int			m_nCountOfThread;
+	HWND		m_hWnd;
 
 	std::mutex						m_mtxData;
 	std::vector<std::thread*>		m_vecWorkerThreads;
 	std::map<int, S_HANDLE_DATE*>	m_mapClients;
+	std::thread*					m_pThreadAccept;
+
+	std::map<int, std::wstring>		m_mapAccessClientInfo;
+	int			m_nLoginNum;
+
 
 private:
 	void acceptClient();
 	void makeWorkerThread();
-	void sendMessage(S_PACKET * pPacket);
-	void workerThreadJoin();
+	//void sendMessage(S_PACKET * pPacket);
+	void threadJoin();
 	void workerThread();
 
-	void errorMessage(const char *msg, int err_no, int line);
+private:
+	void wcharToString(std::string& pStrDst, LPCWSTR strSrc);
+	//temp func()
+
 
 public:
 	C_MAINSERVER();
-	void init();
+	void init(HWND hWnd);
 	void release();
 
 };

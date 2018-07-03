@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include "mainServer.h"
 
 class C_MYWIN
 {
@@ -15,6 +16,9 @@ private:
 	HWND		m_hBtnServerStart;
 	HWND		m_hBtnShowList;
 	HWND		m_hBtnEraseList;
+
+private:
+	C_MAINSERVER m_cMainServer;
 
 private:
 	static C_MYWIN* m_pMyWin;

@@ -25,7 +25,8 @@ C_MYWIN::C_MYWIN() :
 	m_strChatText{},
 	m_nInputTextLen(),
 	m_bVoiceStart(),
-	m_bVoiceEnd()
+	m_bVoiceEnd(),
+	m_cNetChat()
 {
 }
 
@@ -102,6 +103,7 @@ bool C_MYWIN::init(HINSTANCE hInstance)
 		return false;
 
 	m_hInstance = hInstance;
+	
 
 	ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
 	UpdateWindow(m_hWndLogin);
