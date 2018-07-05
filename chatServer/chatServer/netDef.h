@@ -27,6 +27,7 @@ enum class E_PACKET_TYPE
 	E_MAX
 };
 
+#pragma pack(push, 1)  
 struct S_CTS_LOGIN_PACKET
 {
 //	E_PACKET_TYPE	eType;
@@ -35,50 +36,64 @@ struct S_CTS_LOGIN_PACKET
 	int				nPwLen;
 	WCHAR			strData[E_MAX_ID_LENGTH + E_MAX_PW_LENGTH];
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)  
 struct S_STC_LOGIN_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nSerialId;
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)  
 struct S_CTS_LOGOUT_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nSerialId;
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)  
 struct S_STC_LOGOUT_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nNickLen;
-	WCHAR			strNick[E_MAX_ID_LENGTH];
+	WCHAR			wstrNick[E_MAX_ID_LENGTH];
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)  
 struct S_VOICE_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nSerialId;
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)  
 struct S_STC_MSG_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nDataSize;
 	int				nNickLen;
 	int				nMgsLen;
-	WCHAR			strNick[E_MAX_NICK_LENGTH];
-	WCHAR			strMsg[E_MAX_MSG_LENGTH];
+	WCHAR			wstrData[E_MAX_MSG_LENGTH + E_MAX_NICK_LENGTH];
+//	WCHAR			strNick[E_MAX_NICK_LENGTH];
+//	WCHAR			strMsg[E_MAX_MSG_LENGTH];
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)  
 struct S_CTS_MSG_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nDataSize;
-	int				nSerialId;
+//	int				nSerialId;
 	int				nMgsLen;
-	WCHAR			strMsg[E_MAX_MSG_LENGTH];
+	WCHAR			wstrMsg[E_MAX_MSG_LENGTH];
 };
+#pragma pack(pop)
 
 
 // IOCP_STRCUT

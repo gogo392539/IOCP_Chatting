@@ -59,10 +59,16 @@ LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			GetWindowText(m_hEditCommInputText, m_strInputText, 128);
 			m_nInputTextLen = lstrlenW(m_strInputText);
 
+			m_cNetChat.sendMsgMessage(m_nInputTextLen, m_strInputText);
 			lstrcatW(m_strInputText, L"\r\n");
-			lstrcatW(m_strChatText, m_strInputText);
+//			lstrcatW(m_strChatText, m_strInputText);
 
-			SetWindowText(m_hEditCommChat, m_strChatText);
+//			SetWindowText(m_hEditCommChat, m_strChatText);
+
+			int nWstrDatalen = GetWindowTextLength(m_hEditCommChat);
+			SendMessage(m_hEditCommChat, EM_SETSEL, nWstrDatalen, nWstrDatalen);
+			SendMessage(m_hEditCommChat, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)m_strInputText);
+
 			SetWindowText(m_hEditCommInputText, L"");
 		}
 			break;

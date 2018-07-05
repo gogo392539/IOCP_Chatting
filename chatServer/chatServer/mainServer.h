@@ -1,6 +1,7 @@
 #pragma once
 
 #include "netDef.h"
+#include "dbServer.h"
 
 class C_MAINSERVER
 {
@@ -18,6 +19,9 @@ private:
 	std::map<int, std::wstring>		m_mapAccessClientInfo;
 	int			m_nLoginNum;
 
+private:
+	C_DB_SERVER		m_cDbServer;
+
 
 private:
 	void acceptClient();
@@ -25,11 +29,6 @@ private:
 	//void sendMessage(S_PACKET * pPacket);
 	void threadJoin();
 	void workerThread();
-
-private:
-	void wcharToString(std::string& pStrDst, LPCWSTR strSrc);
-	//temp func()
-
 
 public:
 	C_MAINSERVER();

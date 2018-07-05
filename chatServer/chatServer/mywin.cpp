@@ -66,7 +66,7 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (GET_X_LPARAM(wParam))
 		{
 		case IDC_BTN_SERVEREND:
-
+			
 			break;
 		case IDC_BTN_SERVERSTART:
 

@@ -8,12 +8,13 @@ C_NET_CHAT::C_NET_CHAT() :
 	m_nMyId(0),
 	m_bLoginSuccess(),
 	m_bLoginFail(),
-	m_bWorkThread(true)
+	m_bWorkThread(true),
+	m_hEditComm(NULL)
 
 {
 }
 
-void C_NET_CHAT::init()
+void C_NET_CHAT::init(HWND hEditComm)
 {
 	WSAData wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -21,9 +22,11 @@ void C_NET_CHAT::init()
 		printf("[ WSAStartup Error - %d ]", __LINE__);
 	}
 
+	m_nMyId = -1;
 	m_bLoginSuccess = false;
 	m_bLoginFail = false;
 	m_bWorkThread = true;
+	m_hEditComm = hEditComm;
 
 	m_sockClient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (m_sockClient == INVALID_SOCKET)
@@ -61,17 +64,17 @@ void C_NET_CHAT::release()
 	WSACleanup();
 }
 
-void C_NET_CHAT::sendLoginMessage(LPCWSTR strId, int nIdLen, LPCWSTR strPw, int nPwLen)
+void C_NET_CHAT::sendLoginMessage(LPCWSTR wstrId, int nIdLen, LPCWSTR wstrPw, int nPwLen)
 {
-	S_CTS_LOGIN_PACKET sPacket = {};
-	sPacket.eType = E_PACKET_TYPE::E_LOGIN_CALL;
-	sPacket.nDataSize = nIdLen * 2 + nPwLen * 2 + 12;
-	sPacket.nIdLen = nIdLen;
-	sPacket.nPwLen = nPwLen;
-	lstrcatW(sPacket.strData, strId);
-	lstrcatW(sPacket.strData, strPw);
+	S_CTS_LOGIN_PACKET sCTSLoginPacket = {};
+	sCTSLoginPacket.eType = E_PACKET_TYPE::E_LOGIN_CALL;
+	sCTSLoginPacket.nDataSize = nIdLen * 2 + nPwLen * 2 + 12;
+	sCTSLoginPacket.nIdLen = nIdLen;
+	sCTSLoginPacket.nPwLen = nPwLen;
+	lstrcatW(sCTSLoginPacket.wstrData, wstrId);
+	lstrcatW(sCTSLoginPacket.wstrData, wstrPw);
 	
-	int nRetval = send(m_sockClient, (const char*)&sPacket, sPacket.nDataSize + 4, 0);
+	int nRetval = send(m_sockClient, (const char*)&sCTSLoginPacket, sCTSLoginPacket.nDataSize + 4, 0);
 	if (nRetval == SOCKET_ERROR)
 	{
 		int nErrNo = WSAGetLastError();
@@ -82,11 +85,27 @@ void C_NET_CHAT::sendLoginMessage(LPCWSTR strId, int nIdLen, LPCWSTR strPw, int 
 
 void C_NET_CHAT::sendLogoutMessage()
 {
-	S_CTS_LOGOUT_PACKET sPacket = {};
-	sPacket.eType = E_PACKET_TYPE::E_LOGOUT;
-	sPacket.nSerialId = m_nMyId;
+	S_CTS_LOGOUT_PACKET sCTSLogoutPacket = {};
+	sCTSLogoutPacket.eType = E_PACKET_TYPE::E_LOGOUT;
+	sCTSLogoutPacket.nSerialId = m_nMyId;
 
-	int nRetval = send(m_sockClient, (const char*)&sPacket, E_LOGOUT_PACKET_SIZE, 0);
+	int nRetval = send(m_sockClient, (const char*)&sCTSLogoutPacket, E_LOGOUT_PACKET_SIZE, 0);
+	if (nRetval == SOCKET_ERROR)
+	{
+		int nErrNo = WSAGetLastError();
+		//errorMessage("send error", nErrNo, __LINE__);
+		exit(1);
+	}
+}
+
+void C_NET_CHAT::sendMsgMessage(int nMsgLen, LPCWSTR wstrMsg)
+{
+	S_CTS_MSG_PACKET sCTSMsgPacket = {};
+	sCTSMsgPacket.eType = E_PACKET_TYPE::E_MESSAGE;
+	sCTSMsgPacket.nDataSize = (nMsgLen * 2) + 8;
+	sCTSMsgPacket.nMgsLen = nMsgLen;
+	lstrcatW(sCTSMsgPacket.wstrMsg, wstrMsg);
+	int nRetval = send(m_sockClient, (const char*)&sCTSMsgPacket, sCTSMsgPacket.nDataSize + 4, 0);
 	if (nRetval == SOCKET_ERROR)
 	{
 		int nErrNo = WSAGetLastError();
@@ -105,6 +124,11 @@ bool C_NET_CHAT::getLoginFailCheck()
 	return m_bLoginFail;
 }
 
+void C_NET_CHAT::threadEnd()
+{
+	m_bWorkThread = false;
+}
+
 void C_NET_CHAT::makeThread()
 {
 	m_threadRecv = new std::thread(&C_NET_CHAT::workerRecvThread, this);
@@ -112,10 +136,11 @@ void C_NET_CHAT::makeThread()
 
 void C_NET_CHAT::workerRecvThread()
 {
+	int nRetval = 0;
 	while (m_bWorkThread)
 	{
 		E_PACKET_TYPE eType = E_PACKET_TYPE::E_NONE;
-		int nRetval = recv(m_sockClient, (char*)&eType, E_PACKET_TYPE_LENGTH, 0);
+		nRetval = recv(m_sockClient, (char*)&eType, E_PACKET_TYPE_LENGTH, 0);
 		if (nRetval == SOCKET_ERROR)
 		{
 			int nErrNo = WSAGetLastError();
@@ -126,13 +151,60 @@ void C_NET_CHAT::workerRecvThread()
 		{
 		case E_PACKET_TYPE::E_LOGIN_SUCCESS:
 		{
-			int nRetval = recv(m_sockClient, (char*)&m_nMyId, 4, 0);
+			nRetval = recv(m_sockClient, (char*)&m_nMyId, 4, 0);
 			if (nRetval == SOCKET_ERROR)
 			{
 				int nErrNo = WSAGetLastError();
 				exit(1);
 			}
 			m_bLoginSuccess = true;
+		}
+			break;
+		case E_PACKET_TYPE::E_LOGIN_FAIL:
+		{
+			nRetval = recv(m_sockClient, (char*)&m_nMyId, 4, 0);
+			if (nRetval == SOCKET_ERROR)
+			{
+				int nErrNo = WSAGetLastError();
+				exit(1);
+			}
+			m_bLoginFail = true;
+			m_bWorkThread = false;
+		}
+			break;
+		case E_PACKET_TYPE::E_MESSAGE:
+		{
+			int nDataSize = 0;
+			S_STC_MSG_PACKET sSTCMsgPacket = {};
+			const WCHAR* wstrDivision = L" : ";
+			WCHAR wstrNick[13] = {};
+			WCHAR wstrMsg[128] = {};
+			WCHAR wstrData[256] = {};
+			nRetval = recv(m_sockClient, (char*)&sSTCMsgPacket + E_PACKET_TYPE_LENGTH, 4, 0);
+			if (nRetval == SOCKET_ERROR)
+			{
+				int nErrNo = WSAGetLastError();
+				exit(1);
+			}
+
+			nRetval = recv(m_sockClient, (char*)&sSTCMsgPacket + E_PACKET_TYPE_LENGTH + E_DATA_LENGTH, sSTCMsgPacket.nDataSize, 0);
+			if (nRetval == SOCKET_ERROR)
+			{
+				int nErrNo = WSAGetLastError();
+				exit(1);
+			}
+
+			lstrcpynW(wstrNick, sSTCMsgPacket.wstrData, sSTCMsgPacket.nNickLen + 1);
+			lstrcpynW(wstrMsg, sSTCMsgPacket.wstrData + sSTCMsgPacket.nNickLen, sSTCMsgPacket.nMgsLen + 1);
+
+			lstrcatW(wstrData, wstrNick);
+			lstrcatW(wstrData, wstrDivision);
+			lstrcatW(wstrData, wstrMsg);
+			lstrcatW(wstrData, L"\r\n");
+
+			int nWstrDatalen = GetWindowTextLength(m_hEditComm);
+			SendMessage(m_hEditComm, EM_SETSEL, nWstrDatalen, nWstrDatalen);
+			SendMessage(m_hEditComm, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)wstrData);
 		}
 			break;
 		case E_PACKET_TYPE::E_LOGOUT:

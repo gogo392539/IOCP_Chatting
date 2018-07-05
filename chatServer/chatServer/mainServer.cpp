@@ -10,7 +10,8 @@ C_MAINSERVER::C_MAINSERVER() :
 	m_mapAccessClientInfo(),
 	m_hWnd(NULL),
 	m_nLoginNum(0),
-	m_pThreadAccept(nullptr)
+	m_pThreadAccept(nullptr),
+	m_cDbServer()
 {
 	m_vecWorkerThreads.clear();
 	m_mapClients.clear();
@@ -25,6 +26,7 @@ void C_MAINSERVER::init(HWND hWnd)
 		printf("[ WSAStartup Error - %d ]", __LINE__);
 	}
 
+	m_cDbServer.init();
 	m_hWnd = hWnd;
 
 	m_hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 0);
@@ -71,6 +73,8 @@ void C_MAINSERVER::init(HWND hWnd)
 		int len = swprintf_s(strErr, 128, L"listen Error [%d - %d]", nErrNo, __LINE__);
 		MessageBox(m_hWnd, strErr, L"오류", MB_OK);
 	}
+
+	
 
 	m_pThreadAccept = new std::thread(&C_MAINSERVER::acceptClient, this);
 }
@@ -123,7 +127,7 @@ void C_MAINSERVER::acceptClient()
 void C_MAINSERVER::release()
 {
 	threadJoin();
-
+	m_cDbServer.release();
 	closesocket(m_sockListen);
 	WSACleanup();
 }
@@ -161,6 +165,7 @@ void C_MAINSERVER::workerThread()
 	DWORD dwFlag = 0;
 	DWORD dwBytes = 0;
 	int nRetval = 0;
+	std::map<int, S_HANDLE_DATE*>::iterator iterAccessClient;
 
 	while (1)
 	{
@@ -168,9 +173,12 @@ void C_MAINSERVER::workerThread()
 			(LPOVERLAPPED*)&pIoData, INFINITE);
 		if (dwBytesTransferred == 0)
 		{
-			m_mtxData.lock();
-			m_mapClients.erase(pHandleData->iter);
-			m_mtxData.unlock();
+			if (pHandleData->nId != -1)
+			{
+				m_mtxData.lock();
+				m_mapClients.erase(pHandleData->iter);
+				m_mtxData.unlock();
+			}
 			closesocket(pHandleData->sockClient);
 			delete pHandleData;
 			pHandleData = nullptr;
@@ -184,12 +192,12 @@ void C_MAINSERVER::workerThread()
 			{
 			case E_PACKET_TYPE::E_LOGIN_CALL:
 			{
-				S_CTS_LOGIN_PACKET sCTSPacket = {};
+				S_CTS_LOGIN_PACKET sCTSLoginPacket = {};
 				WSABUF wsaBuf;
 				wsaBuf.len = E_DATA_LENGTH;
-				wsaBuf.buf = (char*)&sCTSPacket;
+				wsaBuf.buf = (char*)&sCTSLoginPacket;
 
-				dwBytes = 0;//
+				dwBytes = 0;
 				dwFlag = 0;
 
 				nRetval = WSARecv(pHandleData->sockClient, &wsaBuf, 1, &dwBytes, &dwFlag, NULL, NULL);
@@ -205,11 +213,11 @@ void C_MAINSERVER::workerThread()
 
 				int nIdLen = 0;
 				int nPwLen = 0;
-				WCHAR strId[E_MAX_ID_LENGTH] = {};
-				WCHAR strPw[E_MAX_PW_LENGTH] = {};
+				WCHAR wstrId[E_MAX_ID_LENGTH] = {};
+				WCHAR wstrPw[E_MAX_PW_LENGTH] = {};
 
-				wsaBuf.len = sCTSPacket.nDataSize;
-				wsaBuf.buf = (char*)&sCTSPacket + E_DATA_LENGTH;
+				wsaBuf.len = sCTSLoginPacket.nDataSize;
+				wsaBuf.buf = (char*)&sCTSLoginPacket + E_DATA_LENGTH;
 
 				dwBytes = 0;//
 				dwFlag = 0;
@@ -225,28 +233,41 @@ void C_MAINSERVER::workerThread()
 					}
 				}
 
-				nIdLen = sCTSPacket.nIdLen;
-				nPwLen = sCTSPacket.nPwLen;
-				lstrcpynW(strId, sCTSPacket.strData, nIdLen + 1);
-				lstrcpynW(strPw, sCTSPacket.strData + nIdLen, nPwLen + 1);
+				nIdLen = sCTSLoginPacket.nIdLen;
+				nPwLen = sCTSLoginPacket.nPwLen;
+				lstrcpynW(wstrId, sCTSLoginPacket.strData, nIdLen + 1);
+				lstrcpynW(wstrPw, sCTSLoginPacket.strData + nIdLen, nPwLen + 1);
 
 				//DB
+				WCHAR wstrNick[13] = {};
+				int nSerialNum = -1;
+				E_PACKET_TYPE eType = E_PACKET_TYPE::E_NONE;
+				if (m_cDbServer.loginCheck(&nSerialNum, wstrNick, wstrId, wstrPw))
+				{
+					pHandleData->nId = nSerialNum;
+					pHandleData->iter = m_mapClients.find(pHandleData->nId);
+					m_mtxData.lock();
+					pHandleData->iter = m_mapClients.insert(pHandleData->iter, std::map<int, S_HANDLE_DATE*>::value_type(nSerialNum, pHandleData));
+					m_mtxData.unlock();
 
-				m_nLoginNum++;
-				pHandleData->nId = m_nLoginNum;
-				pHandleData->iter = m_mapClients.find(pHandleData->nId);
-				m_mtxData.lock();
-				pHandleData->iter = m_mapClients.insert(pHandleData->iter, std::map<int, S_HANDLE_DATE*>::value_type(m_nLoginNum, pHandleData));
-				m_mtxData.unlock();
+					m_mtxData.lock();
+					m_mapAccessClientInfo.insert(std::map<int, std::wstring>::value_type(pHandleData->nId, wstrNick));
+					m_mtxData.unlock();
 
-				m_mapAccessClientInfo.insert(std::map<int, std::wstring>::value_type(pHandleData->nId, strId));
+					eType = E_PACKET_TYPE::E_LOGIN_SUCCESS;
+				}
+				else 
+				{
+					eType = E_PACKET_TYPE::E_LOGIN_FAIL;
+				}
 
-				S_STC_LOGIN_PACKET sSTCPacket = {};
-				sSTCPacket.eType = E_PACKET_TYPE::E_LOGIN_SUCCESS;
-				sSTCPacket.nSerialId = pHandleData->nId;
+				S_STC_LOGIN_PACKET sSTCLoginPacket = {};
+				sSTCLoginPacket.eType = eType;
+				sSTCLoginPacket.nSerialId = nSerialNum;
 
 				wsaBuf.len = 8;
-				wsaBuf.buf = (char*)&sSTCPacket;
+				wsaBuf.buf = (char*)&sSTCLoginPacket;
+				
 
 				dwBytes = 0;//
 				dwFlag = 0;
@@ -271,7 +292,6 @@ void C_MAINSERVER::workerThread()
 				WSABUF wsaBuf;
 				wsaBuf.len = 4;
 				wsaBuf.buf = (char*)&nLogoutId;
-
 
 				nRetval = WSARecv(pHandleData->sockClient, &wsaBuf, 1, &dwBytes, &dwFlag, NULL, NULL);
 				if (nRetval == SOCKET_ERROR) {
@@ -304,17 +324,86 @@ void C_MAINSERVER::workerThread()
 				//다른 클라 전송 추가
 			}
 				break;
+			case E_PACKET_TYPE::E_MESSAGE:
+			{
+				S_CTS_MSG_PACKET sCTSMgsPacket = {};
+				WSABUF wsaBuf;
+				wsaBuf.len = E_DATA_LENGTH;
+				wsaBuf.buf = (char*)&sCTSMgsPacket + E_PACKET_TYPE_LENGTH;
+
+				dwBytes = 0;
+				dwFlag = 0;
+
+				nRetval = WSARecv(pHandleData->sockClient, &wsaBuf, 1, &dwBytes, &dwFlag, NULL, NULL);
+				if (nRetval == SOCKET_ERROR) {
+					int nErrNo = WSAGetLastError();
+					if (ERROR_IO_PENDING != nErrNo) {
+						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
+						WCHAR strErr[128] = L"";
+						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
+						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
+					}
+				}
+
+				wsaBuf.len = sCTSMgsPacket.nDataSize;
+				wsaBuf.buf = (char*)&sCTSMgsPacket + E_PACKET_TYPE_LENGTH + E_DATA_LENGTH;
+
+				dwBytes = 0;
+				dwFlag = 0;
+
+				nRetval = WSARecv(pHandleData->sockClient, &wsaBuf, 1, &dwBytes, &dwFlag, NULL, NULL);
+				if (nRetval == SOCKET_ERROR) {
+					int nErrNo = WSAGetLastError();
+					if (ERROR_IO_PENDING != nErrNo) {
+						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
+						WCHAR strErr[128] = L"";
+						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
+						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
+					}
+				}
+
+				std::map<int, std::wstring>::iterator iterAccessFind;
+				iterAccessFind = m_mapAccessClientInfo.find(pHandleData->nId);
+
+				S_STC_MSG_PACKET sSTCMsgPacket = {};
+				sSTCMsgPacket.eType = E_PACKET_TYPE::E_MESSAGE;
+				sSTCMsgPacket.nNickLen = iterAccessFind->second.length();
+				sSTCMsgPacket.nMgsLen = sCTSMgsPacket.nMgsLen;
+				sSTCMsgPacket.nDataSize = sSTCMsgPacket.nNickLen * 2 + sSTCMsgPacket.nMgsLen * 2 + 8;
+				lstrcatW(sSTCMsgPacket.wstrData, iterAccessFind->second.c_str());
+				lstrcatW(sSTCMsgPacket.wstrData, sCTSMgsPacket.wstrMsg);
+
+				wsaBuf.len = sSTCMsgPacket.nDataSize + E_PACKET_TYPE_LENGTH + E_DATA_LENGTH;
+				wsaBuf.buf = (char*)&sSTCMsgPacket;
+
+				iterAccessClient = m_mapClients.begin();
+				while (iterAccessClient != m_mapClients.end())
+				{
+					if (iterAccessClient != pHandleData->iter)
+					{
+						dwBytes = 0;
+						dwFlag = 0;
+
+						int nRetval = WSASend(iterAccessClient->second->sockClient, &wsaBuf, 1, &dwBytes, dwFlag, NULL, NULL);
+						if (nRetval == SOCKET_ERROR) {
+							int err_no = WSAGetLastError();
+							if (ERROR_IO_PENDING != err_no) {
+								WCHAR strErr[128] = L"";
+								int len = swprintf_s(strErr, 128, L"E_MESSAGE::WSASend Error [%d - %d]", err_no, __LINE__);
+								MessageBox(m_hWnd, strErr, L"오류", MB_OK);
+							}
+						}
+					}
+					iterAccessClient++;
+				}
+			}
+				break;
 			case E_PACKET_TYPE::E_VOICE_ACT:
 			{
 
 			}
 				break;
 			case E_PACKET_TYPE::E_VOICE_DEACT:
-			{
-
-			}
-				break;
-			case E_PACKET_TYPE::E_MESSAGE:
 			{
 
 			}
@@ -340,11 +429,4 @@ void C_MAINSERVER::workerThread()
 			}
 		}
 	}
-}
-
-void C_MAINSERVER::wcharToString(std::string & pStrDst, LPCWSTR strSrc)
-{
-	std::wstring wstrTmp = strSrc;
-	std::string strTmp(wstrTmp.begin(), wstrTmp.end());
-	pStrDst = strTmp;
 }
