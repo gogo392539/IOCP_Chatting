@@ -9,7 +9,6 @@ C_MAINSERVER::C_MAINSERVER() :
 	m_mapClients(),
 	m_mapAccessClientInfo(),
 	m_hWnd(NULL),
-	m_nLoginNum(0),
 	m_pThreadAccept(nullptr),
 	m_cDbServer()
 {
@@ -106,7 +105,7 @@ void C_MAINSERVER::acceptClient()
 
 		S_IO_DATA* pIoData = new S_IO_DATA();
 		memset(&pIoData->overlapped, 0, sizeof(OVERLAPPED));
-		pIoData->wsaBuf.len = E_PACKET_TYPE_LENGTH;
+		pIoData->wsaBuf.len = E_PACKET_TYPE_LENGTH_SIZE;
 		pIoData->wsaBuf.buf = (char*)&pIoData->eType;
 
 		dwFlag = 0;
@@ -177,6 +176,7 @@ void C_MAINSERVER::workerThread()
 			{
 				m_mtxData.lock();
 				m_mapClients.erase(pHandleData->iter);
+				m_mapAccessClientInfo.erase(pHandleData->iterNickList);
 				m_mtxData.unlock();
 			}
 			closesocket(pHandleData->sockClient);
@@ -194,7 +194,7 @@ void C_MAINSERVER::workerThread()
 			{
 				S_CTS_LOGIN_PACKET sCTSLoginPacket = {};
 				WSABUF wsaBuf;
-				wsaBuf.len = E_DATA_LENGTH;
+				wsaBuf.len = E_DATA_LENGTH_SIZE;
 				wsaBuf.buf = (char*)&sCTSLoginPacket;
 
 				dwBytes = 0;
@@ -217,7 +217,7 @@ void C_MAINSERVER::workerThread()
 				WCHAR wstrPw[E_MAX_PW_LENGTH] = {};
 
 				wsaBuf.len = sCTSLoginPacket.nDataSize;
-				wsaBuf.buf = (char*)&sCTSLoginPacket + E_DATA_LENGTH;
+				wsaBuf.buf = (char*)&sCTSLoginPacket + E_DATA_LENGTH_SIZE;
 
 				dwBytes = 0;//
 				dwFlag = 0;
@@ -235,8 +235,8 @@ void C_MAINSERVER::workerThread()
 
 				nIdLen = sCTSLoginPacket.nIdLen;
 				nPwLen = sCTSLoginPacket.nPwLen;
-				lstrcpynW(wstrId, sCTSLoginPacket.strData, nIdLen + 1);
-				lstrcpynW(wstrPw, sCTSLoginPacket.strData + nIdLen, nPwLen + 1);
+				lstrcpynW(wstrId, sCTSLoginPacket.wstrData, nIdLen + 1);
+				lstrcpynW(wstrPw, sCTSLoginPacket.wstrData + nIdLen, nPwLen + 1);
 
 				//DB
 				WCHAR wstrNick[13] = {};
@@ -247,11 +247,14 @@ void C_MAINSERVER::workerThread()
 					pHandleData->nId = nSerialNum;
 					pHandleData->iter = m_mapClients.find(pHandleData->nId);
 					m_mtxData.lock();
-					pHandleData->iter = m_mapClients.insert(pHandleData->iter, std::map<int, S_HANDLE_DATE*>::value_type(nSerialNum, pHandleData));
+					pHandleData->iter = m_mapClients.insert(pHandleData->iter, 
+						std::map<int, S_HANDLE_DATE*>::value_type(nSerialNum, pHandleData));
 					m_mtxData.unlock();
-
+					
 					m_mtxData.lock();
-					m_mapAccessClientInfo.insert(std::map<int, std::wstring>::value_type(pHandleData->nId, wstrNick));
+					pHandleData->iterNickList = m_mapAccessClientInfo.find(pHandleData->nId);
+					pHandleData->iterNickList = m_mapAccessClientInfo.insert(pHandleData->iterNickList, 
+						std::map<int, std::wstring>::value_type(pHandleData->nId, wstrNick));
 					m_mtxData.unlock();
 
 					eType = E_PACKET_TYPE::E_LOGIN_SUCCESS;
@@ -304,9 +307,12 @@ void C_MAINSERVER::workerThread()
 					}
 				}
 
+				m_cDbServer.updateConnCheck(nLogoutId, false);
+				m_cDbServer.updateVoiceCheck(nLogoutId, false);
+
 
 				E_PACKET_TYPE eType = E_PACKET_TYPE::E_LOGOUT;
-				wsaBuf.len = E_PACKET_TYPE_LENGTH;
+				wsaBuf.len = E_PACKET_TYPE_LENGTH_SIZE;
 				wsaBuf.buf = (char*)&eType;
 
 				nRetval = WSASend(pHandleData->sockClient, &wsaBuf, 1, &dwBytes, dwFlag, NULL, NULL);
@@ -328,8 +334,8 @@ void C_MAINSERVER::workerThread()
 			{
 				S_CTS_MSG_PACKET sCTSMgsPacket = {};
 				WSABUF wsaBuf;
-				wsaBuf.len = E_DATA_LENGTH;
-				wsaBuf.buf = (char*)&sCTSMgsPacket + E_PACKET_TYPE_LENGTH;
+				wsaBuf.len = E_DATA_LENGTH_SIZE;
+				wsaBuf.buf = (char*)&sCTSMgsPacket + E_PACKET_TYPE_LENGTH_SIZE;
 
 				dwBytes = 0;
 				dwFlag = 0;
@@ -346,7 +352,7 @@ void C_MAINSERVER::workerThread()
 				}
 
 				wsaBuf.len = sCTSMgsPacket.nDataSize;
-				wsaBuf.buf = (char*)&sCTSMgsPacket + E_PACKET_TYPE_LENGTH + E_DATA_LENGTH;
+				wsaBuf.buf = (char*)&sCTSMgsPacket + E_PACKET_TYPE_LENGTH_SIZE + E_DATA_LENGTH_SIZE;
 
 				dwBytes = 0;
 				dwFlag = 0;
@@ -362,18 +368,15 @@ void C_MAINSERVER::workerThread()
 					}
 				}
 
-				std::map<int, std::wstring>::iterator iterAccessFind;
-				iterAccessFind = m_mapAccessClientInfo.find(pHandleData->nId);
-
 				S_STC_MSG_PACKET sSTCMsgPacket = {};
 				sSTCMsgPacket.eType = E_PACKET_TYPE::E_MESSAGE;
-				sSTCMsgPacket.nNickLen = iterAccessFind->second.length();
+				sSTCMsgPacket.nNickLen = pHandleData->iterNickList->second.length();
 				sSTCMsgPacket.nMgsLen = sCTSMgsPacket.nMgsLen;
 				sSTCMsgPacket.nDataSize = sSTCMsgPacket.nNickLen * 2 + sSTCMsgPacket.nMgsLen * 2 + 8;
-				lstrcatW(sSTCMsgPacket.wstrData, iterAccessFind->second.c_str());
+				lstrcatW(sSTCMsgPacket.wstrData, pHandleData->iterNickList->second.c_str());
 				lstrcatW(sSTCMsgPacket.wstrData, sCTSMgsPacket.wstrMsg);
 
-				wsaBuf.len = sSTCMsgPacket.nDataSize + E_PACKET_TYPE_LENGTH + E_DATA_LENGTH;
+				wsaBuf.len = sSTCMsgPacket.nDataSize + E_PACKET_TYPE_LENGTH_SIZE + E_DATA_LENGTH_SIZE;
 				wsaBuf.buf = (char*)&sSTCMsgPacket;
 
 				iterAccessClient = m_mapClients.begin();
@@ -412,7 +415,7 @@ void C_MAINSERVER::workerThread()
 		}
 
 		memset(&pIoData->overlapped, 0, sizeof(OVERLAPPED));
-		pIoData->wsaBuf.len = E_PACKET_TYPE_LENGTH;
+		pIoData->wsaBuf.len = E_PACKET_TYPE_LENGTH_SIZE;
 		pIoData->wsaBuf.buf = (char*)&pIoData->eType;
 
 		dwFlag = 0;

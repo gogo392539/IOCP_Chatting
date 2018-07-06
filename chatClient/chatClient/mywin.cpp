@@ -26,7 +26,8 @@ C_MYWIN::C_MYWIN() :
 	m_nInputTextLen(),
 	m_bVoiceStart(),
 	m_bVoiceEnd(),
-	m_cNetChat()
+	m_cNetChat(),
+	m_cNetJoin()
 {
 }
 

@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="chatServer.h" />
     <ClInclude Include="dbServer.h" />
+    <ClInclude Include="joinServer.h" />
     <ClInclude Include="mainServer.h" />
     <ClInclude Include="mywin.h" />
     <ClInclude Include="netDef.h" />
@@ -165,6 +166,7 @@
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</StructMemberAlignment>
     </ClCompile>
     <ClCompile Include="dbServer.cpp" />
+    <ClCompile Include="joinServer.cpp" />
     <ClCompile Include="mainServer.cpp" />
     <ClCompile Include="mywin.cpp" />
     <ClCompile Include="stdafx.cpp">

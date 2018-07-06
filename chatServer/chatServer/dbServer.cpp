@@ -123,27 +123,27 @@ bool C_DB_SERVER::selectUserNickName(const std::wstring & wstrUserNickname)
 	return true;
 }
 
-bool C_DB_SERVER::selectUserAll()
-{
-	int	nQuery_stat = 0;
-	char strQuery[100] = {};
-
-	sprintf_s(strQuery, 100, "select * from %s", m_strDB_TABLE);
-	if (!mysqlQuery(strQuery))
-	{
-		return false;
-	}
-
-	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
-	while ((m_mySqlRow = mysql_fetch_row(m_pMySqlResult)) != NULL)
-	{
-		printf("%s, %s, %s, %s, %s, %s \n", m_mySqlRow[0], m_mySqlRow[1], m_mySqlRow[2], m_mySqlRow[3], m_mySqlRow[4], m_mySqlRow[5]);
-	}
-
-	mysql_free_result(m_pMySqlResult);
-
-	return true;
-}
+//bool C_DB_SERVER::selectUserAll()
+//{
+//	int	nQuery_stat = 0;
+//	char strQuery[100] = {};
+//
+//	sprintf_s(strQuery, 100, "select * from %s", m_strDB_TABLE);
+//	if (!mysqlQuery(strQuery))
+//	{
+//		return false;
+//	}
+//
+//	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
+//	while ((m_mySqlRow = mysql_fetch_row(m_pMySqlResult)) != NULL)
+//	{
+//		printf("%s, %s, %s, %s, %s, %s \n", m_mySqlRow[0], m_mySqlRow[1], m_mySqlRow[2], m_mySqlRow[3], m_mySqlRow[4], m_mySqlRow[5]);
+//	}
+//
+//	mysql_free_result(m_pMySqlResult);
+//
+//	return true;
+//}
 
 bool C_DB_SERVER::updateVoiceCheck(int nSerialNum, bool bVoiceCheck)
 {
@@ -197,16 +197,8 @@ bool C_DB_SERVER::loginCheck(int* nSerialNum, LPWSTR wstrNick, const std::wstrin
 		*nSerialNum = -1;
 		return false;
 	}
-//	printf("%s, %s \n", m_mySqlRow[1], m_mySqlRow[2]);
 	*nSerialNum = atoi(m_mySqlRow[0]);
-//	printf("%d \n", *nSerialNum);
 
-	/*unsigned long* pColumLen = nullptr;
-	pColumLen = mysql_fetch_lengths(m_pMySqlResult);
-	for (int i = 0; i < (int)pColumLen[3]; i++)
-	{
-		strNick[i] = m_mySqlRow[3][i];
-	}*/
 	charToWchar(wstrNick, m_mySqlRow[3]);
 
 	updateConnCheck(*nSerialNum, true);

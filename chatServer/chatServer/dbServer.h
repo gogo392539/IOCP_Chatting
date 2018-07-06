@@ -30,7 +30,7 @@ public:
 	bool insertUserInfo(int nSerialNum, const std::wstring& wstrUserId, const std::wstring& wstrUserNickname, const std::wstring& wstrUserPw);
 	bool selectUserId(const std::wstring& wstrUserId);
 	bool selectUserNickName(const std::wstring& wstrUserNickname);
-	bool selectUserAll();
+//	bool selectUserAll();
 	bool updateVoiceCheck(int nSerialNum, bool bVoiceCheck);
 	bool updateConnCheck(int nSerialNum, bool bConnCheck);
 

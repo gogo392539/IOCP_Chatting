@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include "chatClient.h"
+#include "netJoin.h"
 
 class C_MYWIN
 {
@@ -18,6 +19,7 @@ private://basic handle
 
 private:
 	C_NET_CHAT  m_cNetChat;
+	C_NET_JOIN	m_cNetJoin;
 
 private://login Handle
 	/*HWND m_hBtnOk;

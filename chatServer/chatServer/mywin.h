@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include "mainServer.h"
+#include "joinServer.h"
 
 class C_MYWIN
 {
@@ -19,6 +20,7 @@ private:
 
 private:
 	C_MAINSERVER m_cMainServer;
+	C_JOIN_SERVER m_cJoinServer;
 
 private:
 	static C_MYWIN* m_pMyWin;

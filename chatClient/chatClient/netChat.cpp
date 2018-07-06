@@ -74,7 +74,7 @@ void C_NET_CHAT::sendLoginMessage(LPCWSTR wstrId, int nIdLen, LPCWSTR wstrPw, in
 	lstrcatW(sCTSLoginPacket.wstrData, wstrId);
 	lstrcatW(sCTSLoginPacket.wstrData, wstrPw);
 	
-	int nRetval = send(m_sockClient, (const char*)&sCTSLoginPacket, sCTSLoginPacket.nDataSize + 4, 0);
+	int nRetval = send(m_sockClient, (const char*)&sCTSLoginPacket, sCTSLoginPacket.nDataSize + E_PACKET_TYPE_LENGTH_SIZE, 0);
 	if (nRetval == SOCKET_ERROR)
 	{
 		int nErrNo = WSAGetLastError();
@@ -105,7 +105,8 @@ void C_NET_CHAT::sendMsgMessage(int nMsgLen, LPCWSTR wstrMsg)
 	sCTSMsgPacket.nDataSize = (nMsgLen * 2) + 8;
 	sCTSMsgPacket.nMgsLen = nMsgLen;
 	lstrcatW(sCTSMsgPacket.wstrMsg, wstrMsg);
-	int nRetval = send(m_sockClient, (const char*)&sCTSMsgPacket, sCTSMsgPacket.nDataSize + 4, 0);
+	
+	int nRetval = send(m_sockClient, (const char*)&sCTSMsgPacket, sCTSMsgPacket.nDataSize + E_PACKET_TYPE_LENGTH_SIZE, 0);
 	if (nRetval == SOCKET_ERROR)
 	{
 		int nErrNo = WSAGetLastError();
@@ -124,11 +125,6 @@ bool C_NET_CHAT::getLoginFailCheck()
 	return m_bLoginFail;
 }
 
-void C_NET_CHAT::threadEnd()
-{
-	m_bWorkThread = false;
-}
-
 void C_NET_CHAT::makeThread()
 {
 	m_threadRecv = new std::thread(&C_NET_CHAT::workerRecvThread, this);
@@ -140,7 +136,7 @@ void C_NET_CHAT::workerRecvThread()
 	while (m_bWorkThread)
 	{
 		E_PACKET_TYPE eType = E_PACKET_TYPE::E_NONE;
-		nRetval = recv(m_sockClient, (char*)&eType, E_PACKET_TYPE_LENGTH, 0);
+		nRetval = recv(m_sockClient, (char*)&eType, E_PACKET_TYPE_LENGTH_SIZE, 0);
 		if (nRetval == SOCKET_ERROR)
 		{
 			int nErrNo = WSAGetLastError();
@@ -180,14 +176,14 @@ void C_NET_CHAT::workerRecvThread()
 			WCHAR wstrNick[13] = {};
 			WCHAR wstrMsg[128] = {};
 			WCHAR wstrData[256] = {};
-			nRetval = recv(m_sockClient, (char*)&sSTCMsgPacket + E_PACKET_TYPE_LENGTH, 4, 0);
+			nRetval = recv(m_sockClient, (char*)&sSTCMsgPacket + E_PACKET_TYPE_LENGTH_SIZE, 4, 0);
 			if (nRetval == SOCKET_ERROR)
 			{
 				int nErrNo = WSAGetLastError();
 				exit(1);
 			}
 
-			nRetval = recv(m_sockClient, (char*)&sSTCMsgPacket + E_PACKET_TYPE_LENGTH + E_DATA_LENGTH, sSTCMsgPacket.nDataSize, 0);
+			nRetval = recv(m_sockClient, (char*)&sSTCMsgPacket + E_PACKET_TYPE_LENGTH_SIZE + E_DATA_LENGTH_SIZE, sSTCMsgPacket.nDataSize, 0);
 			if (nRetval == SOCKET_ERROR)
 			{
 				int nErrNo = WSAGetLastError();

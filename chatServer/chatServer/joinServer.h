@@ -1,9 +1,8 @@
 #pragma once
 
 #include "netDef.h"
-#include "dbServer.h"
 
-class C_MAINSERVER
+class C_JOIN_SERVER
 {
 private:
 	SOCKET		m_sockListen;
@@ -11,25 +10,24 @@ private:
 	int			m_nCountOfThread;
 	HWND		m_hWnd;
 
-	std::mutex						m_mtxData;
-	std::vector<std::thread*>		m_vecWorkerThreads;
-	std::map<int, S_HANDLE_DATE*>	m_mapClients;
-	std::thread*					m_pThreadAccept;
-
-	std::map<int, std::wstring>		m_mapAccessClientInfo;
+	std::mutex							m_mtxData;
+	std::vector<std::thread*>			m_vecWorkerThreads;
+	std::map<int, S_JOIN_HANDLE_DATE*>	m_mapJoinClients;
+	std::thread*						m_pThreadAccept;
+	int									m_nSerialId;
 
 private:
 	C_DB_SERVER		m_cDbServer;
 
 
 private:
-	void acceptClient();
+	void acceptJoinClient();
 	void makeWorkerThread();
 	void threadJoin();
 	void workerThread();
 
 public:
-	C_MAINSERVER();
+	C_JOIN_SERVER();
 	void init(HWND hWnd);
 	void release();
 

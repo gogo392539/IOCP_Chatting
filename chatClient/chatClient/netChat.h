@@ -31,8 +31,6 @@ public:
 	bool getLoginSuccessCheck();
 	bool getLoginFailCheck();
 
-	void threadEnd();
-
 private:
 	void makeThread();
 	void workerRecvThread();

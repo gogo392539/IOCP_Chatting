@@ -2,14 +2,14 @@
 
 enum
 {
-	E_PACKET_TYPE_LENGTH	= 4,
-	E_DATA_LENGTH			= 4,
-	E_MAX_ID_LENGTH			= 13,
-	E_MAX_NICK_LENGTH		= 13,
-	E_MAX_PW_LENGTH			= 13,
-	E_MAX_MSG_LENGTH		= 128,
-//	E_PACKET_MAX			= 516,
-	E_SERVER_PORT			= 20000,
+	E_PACKET_TYPE_LENGTH_SIZE	= 4,
+	E_DATA_LENGTH_SIZE			= 4,
+	E_MAX_ID_LENGTH				= 13,
+	E_MAX_NICK_LENGTH			= 13,
+	E_MAX_PW_LENGTH				= 13,
+	E_MAX_MSG_LENGTH			= 128,
+	E_SERVER_PORT				= 20000,
+	E_JOIN_SERVER_PORT			= 20000,
 };
 
 enum class E_PACKET_TYPE
@@ -21,8 +21,6 @@ enum class E_PACKET_TYPE
 	E_LOGIN_FAIL,
 	E_VOICE_ACT,
 	E_VOICE_DEACT,
-	E_VOICE_ACT_CHECK,
-	E_VOICE_DEACT_CHECK,
 	E_MESSAGE,
 	E_MAX
 };
@@ -34,44 +32,34 @@ struct S_CTS_LOGIN_PACKET
 	int				nDataSize;
 	int				nIdLen;
 	int				nPwLen;
-	WCHAR			strData[E_MAX_ID_LENGTH + E_MAX_PW_LENGTH];
+	WCHAR			wstrData[E_MAX_ID_LENGTH + E_MAX_PW_LENGTH];
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)  
 struct S_STC_LOGIN_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nSerialId;
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)  
 struct S_CTS_LOGOUT_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nSerialId;
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)  
 struct S_STC_LOGOUT_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nNickLen;
 	WCHAR			wstrNick[E_MAX_ID_LENGTH];
 };
-#pragma pack(pop)
-
-#pragma pack(push, 1)  
+  
 struct S_VOICE_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nSerialId;
 };
-#pragma pack(pop)
-
-#pragma pack(push, 1)  
+ 
 struct S_STC_MSG_PACKET
 {
 	E_PACKET_TYPE	eType;
@@ -79,17 +67,12 @@ struct S_STC_MSG_PACKET
 	int				nNickLen;
 	int				nMgsLen;
 	WCHAR			wstrData[E_MAX_MSG_LENGTH + E_MAX_NICK_LENGTH];
-//	WCHAR			strNick[E_MAX_NICK_LENGTH];
-//	WCHAR			strMsg[E_MAX_MSG_LENGTH];
 };
-#pragma pack(pop)
 
-#pragma pack(push, 1)  
 struct S_CTS_MSG_PACKET
 {
 	E_PACKET_TYPE	eType;
 	int				nDataSize;
-//	int				nSerialId;
 	int				nMgsLen;
 	WCHAR			wstrMsg[E_MAX_MSG_LENGTH];
 };
@@ -102,6 +85,7 @@ struct S_HANDLE_DATE
 {
 	SOCKET			sockClient;
 	int				nId;
+	std::map<int, std::wstring>::iterator iterNickList;
 	std::map<int, S_HANDLE_DATE*>::iterator iter;
 };
 
@@ -110,4 +94,83 @@ struct S_IO_DATA
 	OVERLAPPED		overlapped;
 	WSABUF			wsaBuf;
 	E_PACKET_TYPE	eType;
+};
+
+//Join
+
+enum class E_JOIN_PACKET_TYPE
+{
+	E_NONE,
+	E_ID_CHECK,
+	E_ID_CHECK_SUCCESS,
+	E_ID_CHECK_FAIL,
+	E_NICK_CHECK,
+	E_NICK_CHECK_SUCCESS,
+	E_NICK_CHECK_FAIL,
+	E_JOIN,
+	E_EXIT,
+	E_MAX
+};
+
+#pragma pack(push, 1)  
+struct S_CTS_ID_CHECK_PACKET
+{
+	E_JOIN_PACKET_TYPE	eType;
+	int				nIdLen;
+	WCHAR			wstrId[E_MAX_ID_LENGTH];
+};
+
+struct S_CTS_NICK_CHECK_PACKET
+{
+	E_JOIN_PACKET_TYPE	eType;
+	int				nNickLen;
+	WCHAR			wstrNick[E_MAX_NICK_LENGTH];
+};
+
+struct S_CTS_JOIN_PACKET
+{
+	E_JOIN_PACKET_TYPE	eType;
+	int				nDataSize;
+	int				nIdLen;
+	int				nNickLen;
+	int				nPwLen;
+	WCHAR			wstrData[E_MAX_ID_LENGTH + E_MAX_NICK_LENGTH + E_MAX_PW_LENGTH];
+};
+
+struct S_STC_ID_CHECK_PACKET
+{
+	E_JOIN_PACKET_TYPE	eType;
+};
+
+struct S_STC_NICK_CHECK_PACKET
+{
+	E_JOIN_PACKET_TYPE	eType;
+};
+
+struct S_STC_JOIN_PACKET
+{
+	E_JOIN_PACKET_TYPE	eType;
+};
+
+struct S_EXIT_MESSATE_PACKET
+{
+	E_JOIN_PACKET_TYPE	eType;
+};
+#pragma pack(pop)
+
+
+// JOIN_IOCP_STRCUT
+
+struct S_JOIN_HANDLE_DATE
+{
+	SOCKET			sockClient;
+	int				nId;
+	std::map<int, S_JOIN_HANDLE_DATE*>::iterator iter;
+};
+
+struct S_JOIN_IO_DATA
+{
+	OVERLAPPED			overlapped;
+	WSABUF				wsaBuf;
+	E_JOIN_PACKET_TYPE	eType;
 };

@@ -79,7 +79,6 @@ LRESULT C_MYWIN::myLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 				else if (m_cNetChat.getLoginFailCheck())
 				{
 					MessageBox(hWnd, L"회원 정보 틀림", L"로그인 실패", MB_OK);
-					m_cNetChat.threadEnd();
 					m_cNetChat.release();
 					break;
 				}
