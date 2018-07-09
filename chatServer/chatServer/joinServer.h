@@ -14,7 +14,8 @@ private:
 	std::vector<std::thread*>			m_vecWorkerThreads;
 	std::map<int, S_JOIN_HANDLE_DATE*>	m_mapJoinClients;
 	std::thread*						m_pThreadAccept;
-	int									m_nSerialId;
+	int									m_nMaxSerialId;
+	int									m_nClientCount;
 
 private:
 	C_DB_SERVER		m_cDbServer;
@@ -30,5 +31,7 @@ public:
 	C_JOIN_SERVER();
 	void init(HWND hWnd);
 	void release();
+	void serverEnd();
+	void closeClient();
 
 };

@@ -66,7 +66,7 @@ LRESULT C_MYWIN::myLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 			nIdLen = lstrlenW(strId);
 			nPwLen = lstrlenW(strPw);
 
-			//로그인 network 추가
+			//로그인 network 
 			m_cNetChat.sendLoginMessage(strId, nIdLen, strPw, nPwLen);
 			while (1)
 			{
@@ -96,6 +96,8 @@ LRESULT C_MYWIN::myLoginProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_LOGIN_BTN_JOIN:
 			SetWindowText(m_hEditLoginId, L"");
 			SetWindowText(m_hEditLoginPw, L"");
+
+			m_cNetJoin.init(m_hWndJoin);
 
 			ShowWindow(m_hWndJoin, SW_SHOWDEFAULT);
 			ShowWindow(hWnd, SW_HIDE);

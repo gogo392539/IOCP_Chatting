@@ -15,8 +15,8 @@ private:
 	std::vector<std::thread*>		m_vecWorkerThreads;
 	std::map<int, S_HANDLE_DATE*>	m_mapClients;
 	std::thread*					m_pThreadAccept;
-
 	std::map<int, std::wstring>		m_mapAccessClientInfo;
+	bool							m_bAcceptThreadSet;
 
 private:
 	C_DB_SERVER		m_cDbServer;
@@ -32,5 +32,7 @@ public:
 	C_MAINSERVER();
 	void init(HWND hWnd);
 	void release();
+	void serverEnd();
+	void closeClient();
 
 };

@@ -33,8 +33,6 @@ private://join Handle
 	HWND		m_hEditJoinNick;
 	HWND		m_hEditJoinPw1;
 	HWND		m_hEditJoinPw2;
-	bool		m_bIdOverlapCheck;
-	bool		m_bNickOverlapCheck;
 	/*HWND m_hBtnIdOverlap;
 	HWND m_hBtnNickOverlap;
 	HWND m_hBtnOk;

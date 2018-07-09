@@ -11,7 +11,7 @@ private:
 	SOCKET			m_sockClient;
 	std::thread*	m_threadRecv;
 
-	HWND			m_hEditComm;
+	HWND			m_hWndJoin;
 	bool			m_bWorkThread;
 	bool			m_bIdCheck;
 	bool			m_bNickCheck;

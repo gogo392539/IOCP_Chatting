@@ -5,7 +5,7 @@ const char* C_NET_JOIN::SERVER_IP = "192.168.1.145";
 C_NET_JOIN::C_NET_JOIN() :
 	m_sockClient(),
 	m_threadRecv(),
-	m_hEditComm(NULL),
+	m_hWndJoin(NULL),
 	m_bWorkThread(),
 	m_bIdCheck(),
 	m_bNickCheck()
@@ -23,7 +23,7 @@ void C_NET_JOIN::init(HWND hWnd)
 	m_bIdCheck = false;
 	m_bNickCheck = false;
 	m_bWorkThread = true;
-	m_hEditComm = hWnd;
+	m_hWndJoin = hWnd;
 
 	m_sockClient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (m_sockClient == INVALID_SOCKET)
@@ -121,10 +121,11 @@ void C_NET_JOIN::sendJoinMessage(LPCWSTR wstrId, int nIdLen, LPCWSTR wstrNick, i
 	sCtsJoinPacket.nIdLen = nIdLen;
 	sCtsJoinPacket.nNickLen = nNickLen;
 	sCtsJoinPacket.nPwLen = nPwLen;
-	sCtsJoinPacket.nDataSize = (sCtsJoinPacket.nIdLen + sCtsJoinPacket.nNickLen + sCtsJoinPacket.nPwLen) + 12;
+	//sCtsJoinPacket.nDataSize = (sCtsJoinPacket.nIdLen + sCtsJoinPacket.nNickLen + sCtsJoinPacket.nPwLen) * 2 + 12;
 	lstrcatW(sCtsJoinPacket.wstrData, wstrId);
 	lstrcatW(sCtsJoinPacket.wstrData, wstrNick);
 	lstrcatW(sCtsJoinPacket.wstrData, wstrPw);
+	sCtsJoinPacket.nDataSize = (lstrlenW(sCtsJoinPacket.wstrData)) * 2 + 12;
 
 	int nRetval = send(m_sockClient, (const char*)&sCtsJoinPacket,
 		sCtsJoinPacket.nDataSize + E_PACKET_TYPE_LENGTH_SIZE + E_DATA_LENGTH_SIZE, 0);
@@ -172,26 +173,31 @@ void C_NET_JOIN::workerRecvThread()
 		case E_JOIN_PACKET_TYPE::E_ID_CHECK_SUCCESS:
 		{
 			m_bIdCheck = true;
+			MessageBox(m_hWndJoin, L"ID 중복확인 성공", L"ID 중복확인", MB_OK);
 		}
 			break;
 		case E_JOIN_PACKET_TYPE::E_ID_CHECK_FAIL:
 		{
 			m_bIdCheck = false;
+			MessageBox(m_hWndJoin, L"ID 중복확인 실패", L"ID 중복확인", MB_OK);
 		}
 			break;
 		case E_JOIN_PACKET_TYPE::E_NICK_CHECK_SUCCESS:
 		{
 			m_bNickCheck = true;
+			MessageBox(m_hWndJoin, L"NICKNAME 중복확인 성공", L"NICKNAME 중복확인", MB_OK);
 		}
 			break;
 		case E_JOIN_PACKET_TYPE::E_NICK_CHECK_FAIL:
 		{
 			m_bNickCheck = false;
+			MessageBox(m_hWndJoin, L"NICKNAME 중복확인 실패", L"NICKNAME 중복확인", MB_OK);
 		}
 			break;
 		case E_JOIN_PACKET_TYPE::E_JOIN:
 		{
 			m_bWorkThread = false;
+			//MessageBox(m_hWndJoin, L"회원가입 성공", L"회원가입", MB_OK);
 		}
 			break;
 		case E_JOIN_PACKET_TYPE::E_EXIT:

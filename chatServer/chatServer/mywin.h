@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "mainServer.h"
 #include "joinServer.h"
+#include "dbServer.h"
 
 class C_MYWIN
 {
@@ -21,6 +22,7 @@ private:
 private:
 	C_MAINSERVER m_cMainServer;
 	C_JOIN_SERVER m_cJoinServer;
+	C_DB_SERVER m_cDBServer;
 
 private:
 	static C_MYWIN* m_pMyWin;

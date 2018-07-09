@@ -19,8 +19,6 @@ C_MYWIN::C_MYWIN() :
 	m_nWinPosX(0),
 	m_nWinPosY(0),
 	m_nWinWidth(0),
-	m_bIdOverlapCheck(),
-	m_bNickOverlapCheck(),
 	m_strInputText{},
 	m_strChatText{},
 	m_nInputTextLen(),

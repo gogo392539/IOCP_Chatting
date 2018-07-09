@@ -68,42 +68,56 @@ LRESULT C_MYWIN::myJoinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		{
 		case IDC_JOIN_BTN_OK:
 		{
-			if (!m_bIdOverlapCheck)
+			if (!m_cNetJoin.getIdCheck())
 			{
 				MessageBox(hWnd, L"ID 중복 확인 하세요", L"회원가입 실패", MB_OK);
 				break;
 			}
 			else
 			{
-				if (!m_bNickOverlapCheck)
+				if (!m_cNetJoin.getNickCheck())
 				{
 					MessageBox(hWnd, L"Nick Name 중복 확인 하세요", L"회원가입 실패", MB_OK);
 					break;
 				}
 			}
 
-			WCHAR strPw1[13];
-			WCHAR strPw2[13];
-			GetWindowText(m_hEditJoinPw1, strPw1, 13);
-			GetWindowText(m_hEditJoinPw2, strPw2, 13);
-			if (lstrcmpW(strPw1, strPw2) != 0)
+			WCHAR wstrPw1[13] = {};
+			WCHAR wstrPw2[13] = {};
+			GetWindowText(m_hEditJoinPw1, wstrPw1, 13);
+			GetWindowText(m_hEditJoinPw2, wstrPw2, 13);
+			if (lstrcmpW(wstrPw1, wstrPw2) != 0)
 			{
 				MessageBox(hWnd, L"Password 확인 틀림", L"회원가입 실패", MB_OK);
 				break;
 			}
 
-
 			//회원가입 network
-
+			WCHAR wstrId[13] = {};
+			WCHAR wstrNick[13] = {};
+			WCHAR wstrPw[13] = {};
+			int nIdLen = 0;
+			int nNickLen = 0;
+			int nPwLen = 0;
+			GetWindowText(m_hEditJoinId, wstrId, 13);
+			GetWindowText(m_hEditJoinNick, wstrNick, 13);
+			GetWindowText(m_hEditJoinPw1, wstrPw, 13);
+			nIdLen = lstrlenW(wstrId);
+			nNickLen = lstrlenW(wstrNick);
+			nPwLen = lstrlenW(wstrPw);
+			m_cNetJoin.sendJoinMessage(wstrId, nIdLen, wstrNick, nNickLen, wstrPw, nPwLen);
 
 			SetWindowText(m_hEditJoinId, L"");
 			SetWindowText(m_hEditJoinNick, L"");
 			SetWindowText(m_hEditJoinPw1, L"");
 			SetWindowText(m_hEditJoinPw2, L"");
-			m_bIdOverlapCheck = false;
-			m_bNickOverlapCheck = false;
 
-			MessageBox(hWnd, L"회원가입 완료", L"회원가입", MB_OK);
+
+			MessageBox(m_hWndJoin, L"회원가입 성공", L"회원가입", MB_OK);
+			//MessageBox(hWnd, L"회원가입 완료", L"회원가입", MB_OK);
+
+			//m_cNetJoin.sendExitMessage();
+			m_cNetJoin.release();
 
 			ShowWindow(hWnd, SW_HIDE);
 			ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
@@ -114,21 +128,32 @@ LRESULT C_MYWIN::myJoinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			SetWindowText(m_hEditJoinNick, L"");
 			SetWindowText(m_hEditJoinPw1, L"");
 			SetWindowText(m_hEditJoinPw2, L"");
-			m_bIdOverlapCheck = false;
-			m_bNickOverlapCheck = false;
+
+			m_cNetJoin.sendExitMessage();
+			m_cNetJoin.release();
 
 			ShowWindow(hWnd, SW_HIDE);
 			ShowWindow(m_hWndLogin, SW_SHOWDEFAULT);
 			break;
 		case IDC_JOIN_BTN_ID_OVERLAP:
+		{
 			//ID 중복 확인 network
-			m_bIdOverlapCheck = true;
-
+			WCHAR wstrId[13] = {};
+			int nIdLen = 0;
+			GetWindowText(m_hEditJoinId, wstrId, 13);
+			nIdLen = lstrlenW(wstrId);
+			m_cNetJoin.sendIdCheckMessage(wstrId, nIdLen);
+		}
 			break;
 		case IDC_JOIN_BTN_NICK_OVERLAP:
+		{
 			//NICKNAME 중복 확인 network
-			m_bNickOverlapCheck = true;
-
+			WCHAR wstrNick[13] = {};
+			int nNickLen = 0;
+			GetWindowText(m_hEditJoinId, wstrNick, 13);
+			nNickLen = lstrlenW(wstrNick);
+			m_cNetJoin.sendNickCheckMessage(wstrNick, nNickLen);
+		}
 			break;
 		}
 		break;

@@ -12,7 +12,8 @@ C_MYWIN::C_MYWIN() :
 	m_hEditUserJoinList(NULL),
 	m_hEditUserLoginList(NULL),
 	m_cMainServer(),
-	m_cJoinServer()
+	m_cJoinServer(),
+	m_cDBServer()
 {
 }
 
@@ -47,10 +48,14 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 	{
-		m_hEditUserJoinList = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 20, 10, 250, 300, hWnd,
-			(HMENU)IDC_EDIT_USERJOINLIST, m_hInstance, NULL);
-		m_hEditUserLoginList = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 300, 10, 250, 300, hWnd,
-			(HMENU)IDC_EDIT_USERLOGINLIST, m_hInstance, NULL);
+		CreateWindow(TEXT("static"), L"유저 접속 목록", WS_CHILD | WS_VISIBLE | SS_CENTER, 20, 5, 250, 20, hWnd,
+			(HMENU)IDC_STATIC, m_hInstance, NULL);
+		CreateWindow(TEXT("static"), L"유저 가입 목록", WS_CHILD | WS_VISIBLE | SS_CENTER, 300, 5, 250, 20, hWnd,
+			(HMENU)IDC_STATIC, m_hInstance, NULL);
+		m_hEditUserLoginList = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_AUTOVSCROLL | ES_MULTILINE | ES_WANTRETURN,
+			20, 35, 250, 275, hWnd, (HMENU)IDC_EDIT_USERJOINLIST, m_hInstance, NULL);
+		m_hEditUserJoinList = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_AUTOVSCROLL | ES_MULTILINE | ES_WANTRETURN,
+			300, 35, 250, 275, hWnd, (HMENU)IDC_EDIT_USERLOGINLIST, m_hInstance, NULL);
 
 		m_hBtnServerEnd = CreateWindow(TEXT("button"), L"Server 종료", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 30, 320, 100, 20, hWnd,
 			(HMENU)IDC_BTN_SERVEREND, m_hInstance, NULL);
@@ -67,16 +72,25 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (GET_X_LPARAM(wParam))
 		{
 		case IDC_BTN_SERVEREND:
-			
+			m_cMainServer.serverEnd();
+			m_cMainServer.closeClient();
+			m_cJoinServer.serverEnd();
+			m_cJoinServer.closeClient();
+			DestroyWindow(m_hWnd);
 			break;
 		case IDC_BTN_SERVERSTART:
 
 			break;
 		case IDC_BTN_SHOWLIST:
+			SetWindowText(m_hEditUserJoinList, L"");
+			SetWindowText(m_hEditUserLoginList, L"");
+			m_cDBServer.selectJoinUser(m_hEditUserJoinList);
+			m_cDBServer.selectLoginUser(m_hEditUserLoginList);
 
 			break;
 		case IDC_BTN_ERASELIST:
-
+			SetWindowText(m_hEditUserJoinList, L"");
+			SetWindowText(m_hEditUserLoginList, L"");
 			break;
 		}
 	}
@@ -99,6 +113,7 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_DESTROY:
+
 		PostQuitMessage(0);
 		break;
 	default:
@@ -134,6 +149,7 @@ bool C_MYWIN::init(HINSTANCE hInstance)
 	m_hInstance = hInstance;
 	m_cMainServer.init(m_hWnd);
 	m_cJoinServer.init(m_hWnd);
+	m_cDBServer.init();
 
 	ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	UpdateWindow(m_hWnd);

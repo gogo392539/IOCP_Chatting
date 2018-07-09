@@ -10,7 +10,8 @@ C_MAINSERVER::C_MAINSERVER() :
 	m_mapAccessClientInfo(),
 	m_hWnd(NULL),
 	m_pThreadAccept(nullptr),
-	m_cDbServer()
+	m_cDbServer(),
+	m_bAcceptThreadSet(true)
 {
 	m_vecWorkerThreads.clear();
 	m_mapClients.clear();
@@ -83,7 +84,13 @@ void C_MAINSERVER::acceptClient()
 	DWORD dwFlag;
 	int nAcceptCount = 0;
 
-	while (1)
+	ULONG isNonBlocking = 1;
+	ioctlsocket(m_sockListen,        //Non-Blocking으로 변경할 소켓
+		FIONBIO,       //변경할 소켓의 입출력 모드
+		&isNonBlocking //넘기는 인자, 여기서는 nonblocking설정 값
+	);
+
+	while (m_bAcceptThreadSet)
 	{
 		SOCKADDR_IN sockAddrClient;
 		int addrLen = sizeof(SOCKADDR_IN);
@@ -91,10 +98,16 @@ void C_MAINSERVER::acceptClient()
 		if (sockClient == INVALID_SOCKET)
 		{
 			int nErrNo = WSAGetLastError();
-//			errorMessage("WSAAccept Error", nErrNo, __LINE__);
-			WCHAR strErr[128] = L"";
-			int len = swprintf_s(strErr, 128, L"WSAAccept Error [%d - %d]", nErrNo, __LINE__);
-			MessageBox(m_hWnd, strErr, L"오류", MB_OK);
+			if (nErrNo != WSAEWOULDBLOCK) {
+				//			errorMessage("WSAAccept Error", nErrNo, __LINE__);
+				WCHAR strErr[128] = L"";
+				int len = swprintf_s(strErr, 128, L"WSAAccept Error [%d - %d]", nErrNo, __LINE__);
+				MessageBox(m_hWnd, strErr, L"오류", MB_OK);
+			}
+			else
+			{
+				continue;
+			}
 		}
 
 		S_HANDLE_DATE* pHandleData = new S_HANDLE_DATE();
@@ -149,6 +162,7 @@ void C_MAINSERVER::threadJoin()
 	{
 		(*iter)->join();
 		delete (*iter);
+		iter++;
 	}
 
 	delete m_pThreadAccept;
@@ -165,8 +179,9 @@ void C_MAINSERVER::workerThread()
 	DWORD dwBytes = 0;
 	int nRetval = 0;
 	std::map<int, S_HANDLE_DATE*>::iterator iterAccessClient;
+	bool bWorkerThreadSet = true;
 
-	while (1)
+	while (bWorkerThreadSet)
 	{
 		BOOL bResult = GetQueuedCompletionStatus(hCompletionPort, &dwBytesTransferred, (PULONG_PTR)&pHandleData,
 			(LPOVERLAPPED*)&pIoData, INFINITE);
@@ -190,6 +205,12 @@ void C_MAINSERVER::workerThread()
 		{
 			switch (pIoData->eType)
 			{
+			case E_PACKET_TYPE::E_SERVER_END:
+			{
+				bWorkerThreadSet = false;
+				continue;
+			}
+				break;
 			case E_PACKET_TYPE::E_LOGIN_CALL:
 			{
 				S_CTS_LOGIN_PACKET sCTSLoginPacket = {};
@@ -431,5 +452,28 @@ void C_MAINSERVER::workerThread()
 				MessageBox(m_hWnd, strErr, L"오류", MB_OK);
 			}
 		}
+	}
+}
+
+void C_MAINSERVER::serverEnd()
+{
+	S_IO_DATA* pIoData = new S_IO_DATA();
+	memset(&pIoData->overlapped, 0, sizeof(OVERLAPPED));
+	pIoData->eType = E_PACKET_TYPE::E_SERVER_END;
+	DWORD dwBytesTransferred = 4;
+	for (int i = 0; i < m_nCountOfThread; i++)
+	{
+		PostQueuedCompletionStatus((HANDLE)m_hIOCP, dwBytesTransferred, NULL, (LPOVERLAPPED)pIoData);
+	}
+	m_bAcceptThreadSet = false;
+}
+
+void C_MAINSERVER::closeClient()
+{
+	std::map<int, S_HANDLE_DATE*>::iterator iter = m_mapClients.begin();
+	while (iter != m_mapClients.end())
+	{
+		closesocket(iter->second->sockClient);
+		iter = m_mapClients.erase(iter->second->iter);
 	}
 }

@@ -93,7 +93,7 @@ bool C_DB_SERVER::selectUserId(const std::wstring & wstrUserId)
 	WCHAR wstrQuery[100] = {};
 	char strQuery[200] = {};
 
-	swprintf_s(wstrQuery, 100, L"select user_nickname from %ws where user_id = '%ws'", m_wstrDB_TABLE, wstrUserId.c_str());
+	swprintf_s(wstrQuery, 100, L"select user_id from %ws where user_id = '%ws'", m_wstrDB_TABLE, wstrUserId.c_str());
 	
 	wcharToChar(strQuery, wstrQuery);
 
@@ -105,12 +105,12 @@ bool C_DB_SERVER::selectUserId(const std::wstring & wstrUserId)
 	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
 
 	m_mySqlRow = mysql_fetch_row(m_pMySqlResult);
-	if (m_mySqlRow == NULL)
+	if (m_mySqlRow != NULL)
 	{
 		return false;
 	}
 
-	printf("%s \n", m_mySqlRow[0]);
+	//printf("%s \n", m_mySqlRow[0]);
 
 	mysql_free_result(m_pMySqlResult);
 
@@ -120,30 +120,131 @@ bool C_DB_SERVER::selectUserId(const std::wstring & wstrUserId)
 bool C_DB_SERVER::selectUserNickName(const std::wstring & wstrUserNickname)
 {
 
+	int	nQuery_stat = 0;
+	WCHAR wstrQuery[100] = {};
+	char strQuery[200] = {};
+
+	swprintf_s(wstrQuery, 100, L"select user_nickname from %ws where user_id = '%ws'", m_wstrDB_TABLE, wstrUserNickname.c_str());
+
+	wcharToChar(strQuery, wstrQuery);
+
+	if (!mysqlQuery(strQuery))
+	{
+		return false;
+	}
+
+	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
+
+	m_mySqlRow = mysql_fetch_row(m_pMySqlResult);
+	if (m_mySqlRow != NULL)
+	{
+		return false;
+	}
+
+	//printf("%s \n", m_mySqlRow[0]);
+
+	mysql_free_result(m_pMySqlResult);
+
 	return true;
 }
+bool C_DB_SERVER::selectLoginUser(HWND hEditUserLoginList)
+{
+	int	nQuery_stat = 0;
+	char strQuery[200] = {};
 
-//bool C_DB_SERVER::selectUserAll()
-//{
-//	int	nQuery_stat = 0;
-//	char strQuery[100] = {};
-//
-//	sprintf_s(strQuery, 100, "select * from %s", m_strDB_TABLE);
-//	if (!mysqlQuery(strQuery))
-//	{
-//		return false;
-//	}
-//
-//	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
-//	while ((m_mySqlRow = mysql_fetch_row(m_pMySqlResult)) != NULL)
-//	{
-//		printf("%s, %s, %s, %s, %s, %s \n", m_mySqlRow[0], m_mySqlRow[1], m_mySqlRow[2], m_mySqlRow[3], m_mySqlRow[4], m_mySqlRow[5]);
-//	}
-//
-//	mysql_free_result(m_pMySqlResult);
-//
-//	return true;
-//}
+	sprintf_s(strQuery, 200, "select user_id from %s where conn_check = true", m_strDB_TABLE);
+	if (!mysqlQuery(strQuery))
+	{
+		return false;
+	}
+
+	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
+	while ((m_mySqlRow = mysql_fetch_row(m_pMySqlResult)) != NULL)
+	{
+		WCHAR wstrUserList[20] = {};
+		charToWchar(wstrUserList, m_mySqlRow[0]);
+		lstrcatW(wstrUserList, L"\r\n");
+
+		int nWstrDatalen = GetWindowTextLength(hEditUserLoginList);
+		SendMessage(hEditUserLoginList, EM_SETSEL, nWstrDatalen, nWstrDatalen);
+		SendMessage(hEditUserLoginList, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)wstrUserList);
+	}
+	mysql_free_result(m_pMySqlResult);
+
+	return true;
+}
+bool C_DB_SERVER::selectJoinUser(HWND hEditUserJoinList)
+{
+	int	nQuery_stat = 0;
+	char strQuery[200] = {};
+
+	sprintf_s(strQuery, 200, "select user_id from %s", m_strDB_TABLE);
+	if (!mysqlQuery(strQuery))
+	{
+		return false;
+	}
+
+	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
+	while ((m_mySqlRow = mysql_fetch_row(m_pMySqlResult)) != NULL)
+	{
+		WCHAR wstrUserList[20] = {};
+		charToWchar(wstrUserList, m_mySqlRow[0]);
+		lstrcatW(wstrUserList, L"\r\n");
+
+		int nWstrDatalen = GetWindowTextLength(hEditUserJoinList);
+		SendMessage(hEditUserJoinList, EM_SETSEL, nWstrDatalen, nWstrDatalen);
+		SendMessage(hEditUserJoinList, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)wstrUserList);
+	}
+	mysql_free_result(m_pMySqlResult);
+	
+	return true;
+}
+/*
+bool C_DB_SERVER::selectUserAll()
+{
+	int	nQuery_stat = 0;
+	char strQuery[100] = {};
+
+	sprintf_s(strQuery, 100, "select * from %s", m_strDB_TABLE);
+	if (!mysqlQuery(strQuery))
+	{
+		return false;
+	}
+
+	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
+	while ((m_mySqlRow = mysql_fetch_row(m_pMySqlResult)) != NULL)
+	{
+		printf("%s, %s, %s, %s, %s, %s \n", m_mySqlRow[0], m_mySqlRow[1], m_mySqlRow[2], m_mySqlRow[3], m_mySqlRow[4], m_mySqlRow[5]);
+	}
+
+	mysql_free_result(m_pMySqlResult);
+
+	return true;
+}
+*/
+bool C_DB_SERVER::selectMaxSerialId(int* nSerialNum)
+{
+	int	nQuery_stat = 0;
+	char strQuery[100] = {};
+
+	sprintf_s(strQuery, 100, "select max(user_info.serial_id) from %s", m_strDB_TABLE);
+	if (!mysqlQuery(strQuery))
+	{
+		return false;
+	}
+
+	m_pMySqlResult = mysql_store_result(m_pMySqlConn);
+	m_mySqlRow = mysql_fetch_row(m_pMySqlResult);
+	if (m_mySqlRow == NULL)
+	{
+		return false;
+	}
+	mysql_free_result(m_pMySqlResult);
+
+	*nSerialNum = atoi(m_mySqlRow[0]);
+
+	return true;
+}
 
 bool C_DB_SERVER::updateVoiceCheck(int nSerialNum, bool bVoiceCheck)
 {
