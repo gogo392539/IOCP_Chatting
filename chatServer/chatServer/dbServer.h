@@ -36,6 +36,7 @@ public:
 	bool selectMaxSerialId(int* nSerialNum);
 	bool updateVoiceCheck(int nSerialNum, bool bVoiceCheck);
 	bool updateConnCheck(int nSerialNum, bool bConnCheck);
+	bool updateConnAndVoiceCheck();
 
 	bool loginCheck(int* nSerialNum, LPWSTR wstrNick, const std::wstring& wstrUserId, const std::wstring& wstrUserPw);
 };

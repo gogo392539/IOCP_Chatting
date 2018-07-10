@@ -11,7 +11,8 @@ C_JOIN_SERVER::C_JOIN_SERVER() :
 	m_nMaxSerialId(0),
 	m_pThreadAccept(nullptr),
 	m_cDbServer(),
-	m_nClientCount(0)
+	m_nClientCount(0),
+	m_bAcceptThreadSet(true)
 {
 	m_vecWorkerThreads.clear();
 	m_mapJoinClients.clear();
@@ -48,7 +49,7 @@ void C_JOIN_SERVER::init(HWND hWnd)
 
 	m_sockListen = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 
-	SOCKADDR_IN sockAddrListen;
+	SOCKADDR_IN sockAddrListen = {};
 	ZeroMemory(&sockAddrListen, sizeof(SOCKADDR_IN));
 	sockAddrListen.sin_family = PF_INET;
 	sockAddrListen.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -91,7 +92,7 @@ void C_JOIN_SERVER::acceptJoinClient()
 		&isNonBlocking //넘기는 인자, 여기서는 nonblocking설정 값
 	);
 
-	while (1)
+	while (m_bAcceptThreadSet)
 	{
 		SOCKADDR_IN sockAddrClient;
 		int addrLen = sizeof(SOCKADDR_IN);
@@ -160,6 +161,8 @@ void C_JOIN_SERVER::serverEnd()
 	{
 		PostQueuedCompletionStatus((HANDLE)m_hIOCP, dwBytesTransferred, NULL, (LPOVERLAPPED)pJoinIoData);
 	}
+
+	m_bAcceptThreadSet = false;
 }
 
 void C_JOIN_SERVER::closeClient()
@@ -206,8 +209,9 @@ void C_JOIN_SERVER::workerThread()
 	DWORD dwFlag = 0;
 	DWORD dwBytes = 0;
 	int nRetval = 0;
+	bool bWorkerThreadSet = true;
 
-	while (1)
+	while (bWorkerThreadSet)
 	{
 		BOOL bResult = GetQueuedCompletionStatus(hCompletionPort, &dwBytesTransferred, (PULONG_PTR)&pJoinHandleData,
 			(LPOVERLAPPED*)&pJoinIoData, INFINITE);
@@ -227,6 +231,12 @@ void C_JOIN_SERVER::workerThread()
 		{
 			switch (pJoinIoData->eType)
 			{
+			case E_JOIN_PACKET_TYPE::E_SERVER_END:
+			{
+				bWorkerThreadSet = false;
+				continue;
+			}
+				break;
 			case E_JOIN_PACKET_TYPE::E_ID_CHECK:
 			{
 				S_CTS_ID_CHECK_PACKET sCTSIdCheckPacket = {};

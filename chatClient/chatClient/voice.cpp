@@ -1,6 +1,8 @@
 #include "stdafx.h"
 
-C_VOICE::C_VOICE() : 
+#include "stdafx.h"
+
+C_VOICE::C_VOICE() :
 	m_waveFormat{},
 	m_hWaveIn(nullptr),
 	m_arWaveInHdrBuf{},
@@ -9,7 +11,6 @@ C_VOICE::C_VOICE() :
 	m_bWaveInStart(false),
 	m_bWaveOutStart(false),
 	m_nOutIdx(0)
-	
 {
 }
 
@@ -41,12 +42,12 @@ void C_VOICE::init()
 		m_arWaveOutHdrBuf[i]->dwFlags = 0;
 		m_arWaveOutHdrBuf[i]->dwLoops = 0;
 	}
-	
+
 }
 
 bool C_VOICE::waveInOpenDevice(HWND hWnd)
 {
-	MMRESULT mResult = waveInOpen(&m_hWaveIn, (UINT)WAVE_MAPPER, &m_waveFormat, 
+	MMRESULT mResult = waveInOpen(&m_hWaveIn, (UINT)WAVE_MAPPER, &m_waveFormat,
 		(DWORD)hWnd, NULL, (DWORD)CALLBACK_WINDOW);
 	if (mResult != MMSYSERR_NOERROR)
 		return false;
@@ -75,7 +76,7 @@ void C_VOICE::waveInEnd()
 	{
 		waveInUnprepareHeader(m_hWaveIn, m_arWaveInHdrBuf[i], sizeof(WAVEHDR));
 	}
-	
+
 	waveInCloseDevice();
 }
 
@@ -101,7 +102,7 @@ void C_VOICE::release()
 
 		::HeapFree(GetProcessHeap(), 0, m_arWaveOutHdrBuf[i]->lpData);
 		::HeapFree(GetProcessHeap(), 0, m_arWaveOutHdrBuf[i]);*/
-		
+
 		delete[] m_arWaveInHdrBuf[i]->lpData;
 		delete m_arWaveInHdrBuf[i];
 

@@ -5,6 +5,7 @@ enum
 	E_PACKET_TYPE_LENGTH_SIZE	= 4,
 	E_DATA_LENGTH_SIZE			= 4,
 	E_LOGOUT_PACKET_SIZE		= 8,
+	E_VOICE_PACKET_SIZE			= 8,
 	E_MAX_ID_LENGTH				= 13,
 	E_MAX_NICK_LENGTH			= 13,
 	E_MAX_PW_LENGTH				= 13,
@@ -23,6 +24,7 @@ enum class E_PACKET_TYPE
 	E_VOICE_ACT,
 	E_VOICE_DEACT,
 	E_MESSAGE,
+	E_SERVER_END,
 	E_MAX
 };
 
@@ -80,19 +82,19 @@ struct S_CTS_MSG_PACKET
 
 // IOCP_STRCUT
 
-struct S_HANDLE_DATE
-{
-	SOCKET			sockClient;
-	int				nId;
-	std::map<int, S_HANDLE_DATE*>::iterator iter;
-};
-
-struct S_IO_DATA
-{
-	OVERLAPPED		overlapped;
-	WSABUF			wsaBuf;
-	E_PACKET_TYPE	eType;
-};
+//struct S_HANDLE_DATE
+//{
+//	SOCKET			sockClient;
+//	int				nId;
+//	std::map<int, S_HANDLE_DATE*>::iterator iter;
+//};
+//
+//struct S_IO_DATA
+//{
+//	OVERLAPPED		overlapped;
+//	WSABUF			wsaBuf;
+//	E_PACKET_TYPE	eType;
+//};
 
 //Join
 
@@ -107,6 +109,7 @@ enum class E_JOIN_PACKET_TYPE
 	E_NICK_CHECK_FAIL,
 	E_JOIN,
 	E_EXIT,
+	E_SERVER_END,
 	E_MAX
 };
 
@@ -160,16 +163,16 @@ struct S_EXIT_MESSATE_PACKET
 
 // JOIN_IOCP_STRCUT
 
-struct S_JOIN_HANDLE_DATE
-{
-	SOCKET			sockClient;
-	int				nId;
-	std::map<int, S_JOIN_HANDLE_DATE*>::iterator iter;
-};
-
-struct S_JOIN_IO_DATA
-{
-	OVERLAPPED			overlapped;
-	WSABUF				wsaBuf;
-	E_JOIN_PACKET_TYPE	eType;
-};
+//struct S_JOIN_HANDLE_DATE
+//{
+//	SOCKET			sockClient;
+//	int				nId;
+//	std::map<int, S_JOIN_HANDLE_DATE*>::iterator iter;
+//};
+//
+//struct S_JOIN_IO_DATA
+//{
+//	OVERLAPPED			overlapped;
+//	WSABUF				wsaBuf;
+//	E_JOIN_PACKET_TYPE	eType;
+//};

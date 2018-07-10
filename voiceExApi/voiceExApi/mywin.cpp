@@ -41,8 +41,8 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 		if (!m_cVoice.isWaveInStart())
 		{
-			m_cVoice.openInDevice(hWnd);
-			m_cVoice.openOutDevice(hWnd);
+			m_cVoice.waveInOpenDevice(hWnd);
+			m_cVoice.waveOutOpenDevice(hWnd);
 		}
 		break;
 	case WM_RBUTTONDOWN:
@@ -57,7 +57,7 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		WAVEHDR * pWaveHdr = (WAVEHDR*)lParam;
 		m_cVoice.waveOutVoice(pWaveHdr->lpData, pWaveHdr->dwBufferLength);
-		m_cVoice.reuseQueue(pWaveHdr);
+		m_cVoice.waveInReuseQueue(pWaveHdr);
 	}
 		break;
 	case MM_WIM_CLOSE:

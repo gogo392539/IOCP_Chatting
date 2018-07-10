@@ -16,11 +16,14 @@
     <Filter Include="winForm">
       <UniqueIdentifier>{20cfe8c6-7c2e-4aba-97ac-f191141c6f59}</UniqueIdentifier>
     </Filter>
-    <Filter Include="chatNet">
-      <UniqueIdentifier>{75d3573f-ecfe-404c-a507-0ee03c72f53d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="netDef">
       <UniqueIdentifier>{66f9c7a9-3065-47ea-80e9-4d3ab4ad78c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="netJoin">
+      <UniqueIdentifier>{af2eb844-ff75-4504-9ab5-2ea42758343b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="netChat">
+      <UniqueIdentifier>{75d3573f-ecfe-404c-a507-0ee03c72f53d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -43,9 +46,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="netChat.h">
-      <Filter>chatNet</Filter>
+      <Filter>netChat</Filter>
     </ClInclude>
     <ClInclude Include="netJoin.h">
+      <Filter>netJoin</Filter>
+    </ClInclude>
+    <ClInclude Include="voice.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="netVoice.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -69,9 +78,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="netChat.cpp">
-      <Filter>chatNet</Filter>
+      <Filter>netChat</Filter>
     </ClCompile>
     <ClCompile Include="netJoin.cpp">
+      <Filter>netJoin</Filter>
+    </ClCompile>
+    <ClCompile Include="voice.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -16,6 +16,7 @@ private:
 	std::thread*						m_pThreadAccept;
 	int									m_nMaxSerialId;
 	int									m_nClientCount;
+	bool								m_bAcceptThreadSet;
 
 private:
 	C_DB_SERVER		m_cDbServer;

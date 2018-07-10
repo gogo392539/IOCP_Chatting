@@ -84,12 +84,50 @@ LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		}
 			break;
 		case IDC_COMM_BTN_VOICE_OK:
+		{
 			//voice network
+			m_cNetChat.sendVoiceCheckMessage(E_PACKET_TYPE::E_VOICE_ACT);
+
+		}
 			break;
 		case IDC_COMM_BTN_VOICE_CANCEL:
+		{
 			//voice network
+			m_cNetChat.sendVoiceCheckMessage(E_PACKET_TYPE::E_VOICE_DEACT);
+
+		}
 			break;
 		}
+		break;
+	case MM_WIM_OPEN:
+	{
+
+	}
+		break;
+	case MM_WIM_DATA:
+	{
+
+	}
+		break;
+	case MM_WIM_CLOSE:
+	{
+
+	}
+		break;
+	case MM_WOM_OPEN:
+	{
+
+	}
+		break;
+	case MM_WOM_DONE:
+	{
+
+	}
+		break;
+	case MM_WOM_CLOSE:
+	{
+
+	}
 		break;
 	case WM_PAINT:
 	{

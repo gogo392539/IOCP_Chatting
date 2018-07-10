@@ -274,6 +274,26 @@ bool C_DB_SERVER::updateConnCheck(int nSerialNum, bool bConnCheck)
 	return true;
 }
 
+bool C_DB_SERVER::updateConnAndVoiceCheck()
+{
+	int	nQuery_stat = 0;
+	char strQuery[100] = {};
+
+	sprintf_s(strQuery, 100, "update %s set conn_check = false; ", m_strDB_TABLE);
+	if (!mysqlQuery(strQuery))
+	{
+		return false;
+	}
+
+	sprintf_s(strQuery, 100, "update %s set voice_check = false; ", m_strDB_TABLE);
+	if (!mysqlQuery(strQuery))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool C_DB_SERVER::loginCheck(int* nSerialNum, LPWSTR wstrNick, const std::wstring & wstrUserId, const std::wstring & wstrUserPw)
 {
 	int	nQuery_stat = 0;

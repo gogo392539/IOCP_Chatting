@@ -27,6 +27,7 @@ public:
 	void sendLoginMessage(LPCWSTR wstrId, int nIdLen, LPCWSTR wstrPw, int nPwLen);
 	void sendLogoutMessage();
 	void sendMsgMessage(int nMsgLen, LPCWSTR wstrMsg);
+	void sendVoiceCheckMessage(E_PACKET_TYPE eType);
 
 	bool getLoginSuccessCheck();
 	bool getLoginFailCheck();

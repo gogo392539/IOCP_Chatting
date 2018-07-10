@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma once
+
 class C_VOICE
 {
 private:
@@ -37,3 +39,4 @@ public:
 	bool isWaveInStart();
 	bool isWaveOutStart();
 };
+
