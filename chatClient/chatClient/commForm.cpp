@@ -75,6 +75,11 @@ LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			m_cNetChat.sendLogoutMessage();
 			m_cNetChat.release();
 
+			m_cNetVoice.serverEnd();
+			m_cNetVoice.release();
+
+			m_bVoiceCheck = true;
+
 			SetWindowText(m_hEditCommInputText, L"");
 			SetWindowText(m_hEditCommChat, L"");
 			//voice network
@@ -86,32 +91,44 @@ LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		case IDC_COMM_BTN_VOICE_OK:
 		{
 			//voice network
-			m_cNetChat.sendVoiceCheckMessage(E_PACKET_TYPE::E_VOICE_ACT);
+			if (m_bVoiceCheck)
+			{
+				m_cNetVoice.init(m_hWndComm, m_cNetChat.getMySerialId());
+				m_bVoiceCheck = false;
+			}
+
+			m_cNetVoice.sendClientVoiceStart();
+
+			m_cNetVoice.getVoiceClass()->waveInOpenDevice(m_hWndComm);
+			m_cNetVoice.getVoiceClass()->waveOutOpenDevice(m_hWndComm);
 
 		}
 			break;
 		case IDC_COMM_BTN_VOICE_CANCEL:
 		{
 			//voice network
-			m_cNetChat.sendVoiceCheckMessage(E_PACKET_TYPE::E_VOICE_DEACT);
-
+			m_cNetVoice.sendClientVoiceEnd();
+			
+			m_cNetVoice.getVoiceClass()->waveInEnd();
 		}
 			break;
 		}
 		break;
 	case MM_WIM_OPEN:
 	{
-
+		m_cNetVoice.getVoiceClass()->waveInVoice();
 	}
 		break;
 	case MM_WIM_DATA:
 	{
-
+		WAVEHDR* pWaveHdr = (WAVEHDR*)lParam;
+		m_cNetVoice.sendClientVoiceData(pWaveHdr->lpData, pWaveHdr->dwBufferLength);
+		m_cNetVoice.getVoiceClass()->waveInReuseQueue(pWaveHdr);
 	}
 		break;
 	case MM_WIM_CLOSE:
 	{
-
+		m_cNetVoice.getVoiceClass()->waveOutEnd();
 	}
 		break;
 	case MM_WOM_OPEN:

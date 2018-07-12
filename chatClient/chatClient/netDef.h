@@ -5,7 +5,6 @@ enum
 	E_PACKET_TYPE_LENGTH_SIZE	= 4,
 	E_DATA_LENGTH_SIZE			= 4,
 	E_LOGOUT_PACKET_SIZE		= 8,
-	E_VOICE_PACKET_SIZE			= 8,
 	E_MAX_ID_LENGTH				= 13,
 	E_MAX_NICK_LENGTH			= 13,
 	E_MAX_PW_LENGTH				= 13,
@@ -27,8 +26,6 @@ enum class E_PACKET_TYPE
 	E_LOGOUT,
 	E_LOGIN_SUCCESS,
 	E_LOGIN_FAIL,
-	E_VOICE_ACT,
-	E_VOICE_DEACT,
 	E_MESSAGE,
 	E_SERVER_END,
 	E_MAX
@@ -60,12 +57,6 @@ struct S_STC_LOGOUT_PACKET
 	E_PACKET_TYPE	eType;
 	int				nNickLen;
 	WCHAR			wstrNick[E_MAX_ID_LENGTH];
-};
-
-struct S_VOICE_PACKET
-{
-	E_PACKET_TYPE	eType;
-	int				nSerialId;
 };
 
 struct S_STC_MSG_PACKET
@@ -189,6 +180,7 @@ enum class E_VOICE_PACKET_TYPE
 	E_NONE,
 	E_ID_CHECK,
 	E_DATA,
+	E_SERVER_END,
 	E_MAX
 };
 
