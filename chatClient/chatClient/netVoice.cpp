@@ -1,7 +1,8 @@
 #include "stdafx.h"
 
 //const char* C_NET_VOICE::SERVER_IP = "192.168.1.145";
-const char* C_NET_VOICE::SERVER_IP = "192.168.0.222";
+//const char* C_NET_VOICE::SERVER_IP = "192.168.0.222";
+const char* C_NET_VOICE::SERVER_IP = "172.30.1.20";
 
 C_NET_VOICE::C_NET_VOICE() : 
 	m_hWnd(NULL),
