@@ -31,6 +31,8 @@ public:
 
 	bool getLoginSuccessCheck();
 	bool getLoginFailCheck();
+	//
+	int getMySerialId();
 
 private:
 	void makeThread();

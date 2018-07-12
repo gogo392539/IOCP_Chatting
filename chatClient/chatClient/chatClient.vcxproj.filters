@@ -86,6 +86,9 @@
     <ClCompile Include="voice.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="netVoice.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="chatClient.rc">

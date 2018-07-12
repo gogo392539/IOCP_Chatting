@@ -12,6 +12,12 @@ enum
 	E_MAX_MSG_LENGTH			= 128,
 	E_SERVER_PORT				= 20000,
 	E_JOIN_SERVER_PORT			= 20001,
+	// VOICE UDP
+	E_UDP_SERVER_PORT			= 20002,
+	E_VOICE_PACKET_TYPE_SIZE	= 4,
+	E_VOICE_ID_SIZE				= 4,
+	E_VOICE_DATA_LENGHT			= 4800,
+	E_VOICE_MAX_PACKET_LENGHT	= 4808,
 };
 
 enum class E_PACKET_TYPE
@@ -178,3 +184,31 @@ struct S_JOIN_IO_DATA
 	WSABUF				wsaBuf;
 	E_JOIN_PACKET_TYPE	eType;
 };
+
+
+
+// Voice UDP
+enum class E_VOICE_PACKET_TYPE
+{
+	E_NONE,
+	E_ID_CHECK,
+	E_DATA,
+	E_MAX
+};
+
+#pragma pack(push, 1)  
+struct S_UDP_VOICE_PACKET
+{
+	E_VOICE_PACKET_TYPE eType;
+	int nSerialId;
+	char strVoiceMsg[E_VOICE_DATA_LENGHT];
+};
+#pragma pack(pop)
+
+struct S_CLIENT_INFO
+{
+	int nSerialId;
+	SOCKADDR_IN sockAddrClient;
+	std::map<int, S_CLIENT_INFO*>::iterator iter;
+};
+

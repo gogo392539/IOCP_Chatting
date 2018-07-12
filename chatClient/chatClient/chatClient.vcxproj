@@ -167,6 +167,7 @@
     <ClCompile Include="mywin.cpp" />
     <ClCompile Include="netChat.cpp" />
     <ClCompile Include="netJoin.cpp" />
+    <ClCompile Include="netVoice.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

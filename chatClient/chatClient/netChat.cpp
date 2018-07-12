@@ -139,6 +139,11 @@ bool C_NET_CHAT::getLoginFailCheck()
 	return m_bLoginFail;
 }
 
+int C_NET_CHAT::getMySerialId()
+{
+	return m_nMyId;
+}
+
 void C_NET_CHAT::makeThread()
 {
 	m_threadRecv = new std::thread(&C_NET_CHAT::workerRecvThread, this);

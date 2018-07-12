@@ -33,7 +33,6 @@ void C_MAINSERVER::init(HWND hWnd)
 	if (m_hIOCP == NULL)
 	{
 		int nErrNo = WSAGetLastError();
-		//errorMessage("CreateIoCompletionPort Error", nErrNo, __LINE__);
 		WCHAR strErr[128] = L"";
 		int len = swprintf_s(strErr, 128, L"Nick Name 중복 확인 하세요 [%d - %d]", nErrNo, __LINE__);
 		MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -58,7 +57,6 @@ void C_MAINSERVER::init(HWND hWnd)
 	if (nRetval == SOCKET_ERROR)
 	{
 		int nErrNo = WSAGetLastError();
-		//errorMessage("bind Error", nErrNo, __LINE__);
 		WCHAR strErr[128] = L"";
 		int len = swprintf_s(strErr, 128, L"bind Error [%d - %d]", nErrNo, __LINE__);
 		MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -68,7 +66,6 @@ void C_MAINSERVER::init(HWND hWnd)
 	if (nRetval == SOCKET_ERROR)
 	{
 		int nErrNo = WSAGetLastError();
-	//	errorMessage("listen Error", nErrNo, __LINE__);
 		WCHAR strErr[128] = L"";
 		int len = swprintf_s(strErr, 128, L"listen Error [%d - %d]", nErrNo, __LINE__);
 		MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -97,7 +94,6 @@ void C_MAINSERVER::acceptClient()
 		{
 			int nErrNo = WSAGetLastError();
 			if (nErrNo != WSAEWOULDBLOCK) {
-				//			errorMessage("WSAAccept Error", nErrNo, __LINE__);
 				WCHAR strErr[128] = L"";
 				int len = swprintf_s(strErr, 128, L"WSAAccept Error [%d - %d]", nErrNo, __LINE__);
 				MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -125,7 +121,6 @@ void C_MAINSERVER::acceptClient()
 		if (nRetval == SOCKET_ERROR) {
 			int nErrNo = WSAGetLastError();
 			if (ERROR_IO_PENDING != nErrNo) {
-//				errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 				WCHAR strErr[128] = L"";
 				int len = swprintf_s(strErr, 128, L"Accept::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 				MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -224,7 +219,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -246,7 +240,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -299,7 +292,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSASend Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -323,7 +315,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -345,7 +336,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSASend Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -370,7 +360,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -387,7 +376,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -441,7 +429,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -461,7 +448,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSASend Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -483,7 +469,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -503,7 +488,6 @@ void C_MAINSERVER::workerThread()
 				if (nRetval == SOCKET_ERROR) {
 					int nErrNo = WSAGetLastError();
 					if (ERROR_IO_PENDING != nErrNo) {
-						//errorMessage("Accept::WSARecv", nErrNo, __LINE__);
 						WCHAR strErr[128] = L"";
 						int len = swprintf_s(strErr, 128, L"E_LOGIN_CALL::WSASend Error [%d - %d]", nErrNo, __LINE__);
 						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
@@ -525,7 +509,6 @@ void C_MAINSERVER::workerThread()
 		{
 			int nErrNo = WSAGetLastError();
 			if (nErrNo != ERROR_IO_PENDING) {
-//				errorMessage("WorkerThreadStart::WSARecv", nErrNo, __LINE__);
 				WCHAR strErr[128] = L"";
 				int len = swprintf_s(strErr, 128, L"WorkerThreadStart::WSARecv Error [%d - %d]", nErrNo, __LINE__);
 				MessageBox(m_hWnd, strErr, L"오류", MB_OK);

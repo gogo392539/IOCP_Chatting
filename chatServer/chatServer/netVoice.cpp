@@ -1,14 +1,13 @@
 #include "stdafx.h"
 
-void C_NET_VOICE_SERVER::voiceWorkerThread()
-{
-}
-
 C_NET_VOICE_SERVER::C_NET_VOICE_SERVER() :
 	m_sockUdp(0),
 	m_hWnd(NULL),
-	m_threadVoiceComm(nullptr)
+	m_threadVoiceComm(nullptr),
+	m_mapClients(),
+	m_mtxData()
 {
+	m_mapClients.clear();
 }
 
 void C_NET_VOICE_SERVER::init(HWND hWnd)
@@ -21,13 +20,12 @@ void C_NET_VOICE_SERVER::init(HWND hWnd)
 
 	m_hWnd = hWnd;
 
-	m_sockUdp = socket(PF_INET, SOCK_DGRAM, 0);
+	m_sockUdp = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (m_sockUdp == INVALID_SOCKET)
 	{
 		int nErrNo = WSAGetLastError();
-		//errorMessage("bind Error", nErrNo, __LINE__);
 		WCHAR strErr[128] = L"";
-		int len = swprintf_s(strErr, 128, L"bind Error [%d - %d]", nErrNo, __LINE__);
+		int len = swprintf_s(strErr, 128, L"socket Error [%d - %d]", nErrNo, __LINE__);
 		MessageBox(m_hWnd, strErr, L"오류", MB_OK);
 	}
 
@@ -37,18 +35,71 @@ void C_NET_VOICE_SERVER::init(HWND hWnd)
 	sockAddrUdp.sin_addr.s_addr = htonl(INADDR_ANY);
 	sockAddrUdp.sin_port = htons(E_UDP_SERVER_PORT);
 
-	if (::bind(m_sockUdp, (sockaddr*)&sockAddrUdp, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
+	if (bind(m_sockUdp, (sockaddr*)&sockAddrUdp, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
 	{
-		{
-			int nErrNo = WSAGetLastError();
-			//errorMessage("bind Error", nErrNo, __LINE__);
-			WCHAR strErr[128] = L"";
-			int len = swprintf_s(strErr, 128, L"bind Error [%d - %d]", nErrNo, __LINE__);
-			MessageBox(m_hWnd, strErr, L"오류", MB_OK);
-		}
+		int nErrNo = WSAGetLastError();
+		WCHAR strErr[128] = L"";
+		int len = swprintf_s(strErr, 128, L"bind Error [%d - %d]", nErrNo, __LINE__);
+		MessageBox(m_hWnd, strErr, L"오류", MB_OK);
 	}
 
 	m_threadVoiceComm = new std::thread(&C_NET_VOICE_SERVER::voiceWorkerThread, this);
+}
+
+void C_NET_VOICE_SERVER::voiceWorkerThread()
+{
+	bool bWorkerThreadSet = true;
+	SOCKADDR_IN sockAddrRecv = {};
+	int nSockAddrLen = sizeof(SOCKADDR_IN);
+	int nResult = 0;
+	std::map<int, S_CLIENT_INFO*>::iterator iterClient;
+
+	while (bWorkerThreadSet)
+	{
+		S_UDP_VOICE_PACKET sUdpVoicePacket = {};
+		nResult = recvfrom(m_sockUdp, (char*)&sUdpVoicePacket, E_VOICE_MAX_PACKET_LENGHT, 0, (SOCKADDR*)&sockAddrRecv, &nSockAddrLen);
+		if (nResult == SOCKET_ERROR)
+		{
+			int nErrNo = WSAGetLastError();
+			WCHAR strErr[128] = L"";
+			int len = swprintf_s(strErr, 128, L"recvfrom Error [%d - %d]", nErrNo, __LINE__);
+			MessageBox(m_hWnd, strErr, L"오류", MB_OK);
+		}
+
+		switch (sUdpVoicePacket.eType)
+		{
+		case E_VOICE_PACKET_TYPE::E_ID_CHECK:
+		{
+			S_CLIENT_INFO sClientInfo = {};
+			sClientInfo.nSerialId = sUdpVoicePacket.nSerialId;
+			sClientInfo.iter = m_mapClients.find(sClientInfo.nSerialId);
+			m_mtxData.lock();
+			sClientInfo.iter = m_mapClients.insert(sClientInfo.iter, std::map<int, S_CLIENT_INFO*>::value_type(sClientInfo.nSerialId, &sClientInfo));
+			m_mtxData.unlock();
+		}
+			break;
+		case E_VOICE_PACKET_TYPE::E_DATA:
+		{
+			iterClient = m_mapClients.begin();
+			while (iterClient != m_mapClients.end())
+			{
+				if (iterClient->first != sUdpVoicePacket.nSerialId)
+				{
+					nResult = sendto(m_sockUdp, (char*)&sUdpVoicePacket.strVoiceMsg, E_VOICE_DATA_LENGHT, 0, (SOCKADDR*)&iterClient->second->sockAddrClient, sizeof(SOCKADDR_IN));
+					if (nResult == SOCKET_ERROR)
+					{
+						int nErrNo = WSAGetLastError();
+						WCHAR strErr[128] = L"";
+						int len = swprintf_s(strErr, 128, L"sendto Error [%d - %d]", nErrNo, __LINE__);
+						MessageBox(m_hWnd, strErr, L"오류", MB_OK);
+					}
+				}
+				iterClient++;
+			}
+		}
+			break;
+		}
+	}
 }
 
 void C_NET_VOICE_SERVER::release()
@@ -56,6 +107,8 @@ void C_NET_VOICE_SERVER::release()
 	m_threadVoiceComm->join();
 	delete m_threadVoiceComm;
 	m_threadVoiceComm = nullptr;
+
+	m_mapClients.clear();
 
 	closesocket(m_sockUdp);
 	WSACleanup();
