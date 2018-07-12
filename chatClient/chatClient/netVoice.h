@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include "voice.h"
 #include "netDef.h"
 
 class C_NET_VOICE
@@ -14,13 +15,27 @@ private:
 	HWND			m_hWnd;
 	std::thread*	m_threadVoiceComm;
 	int				m_nMySerialId;
+	bool			m_bWorkerThreadSet;
+
+private:
+	C_VOICE			m_cVoice;
 
 private:
 	void voiceWorkerThread();
 
 public:
-	void sendClientSockInfo();
-	void sendClientVoiceData();
+	void sendClientVoiceStart();
+	void sendClientVoiceEnd();
+	void sendClientVoiceData(const char* strVoiceData, int nDataLen);
+
+public:
+	void voiceCommStart();
+	void voiceCommEnd();
+	void voiceInStart();
+	void voiceInReuseQueue();
+
+	C_VOICE* getVoiceClass();
+
 
 public:
 	C_NET_VOICE();

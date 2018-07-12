@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "chatClient.h"
 #include "netJoin.h"
+#include "netVoice.h"
 
 class C_MYWIN
 {
@@ -20,6 +21,7 @@ private://basic handle
 private:
 	C_NET_CHAT  m_cNetChat;
 	C_NET_JOIN	m_cNetJoin;
+	C_NET_VOICE m_cNetVoice;
 
 private://login Handle
 	/*HWND m_hBtnOk;
@@ -48,8 +50,7 @@ private://comm Handle
 	WCHAR		m_strInputText[128];
 	WCHAR		m_strChatText[2048];
 	int			m_nInputTextLen;
-	bool		m_bVoiceStart;
-	bool		m_bVoiceEnd;
+	bool		m_bVoiceCheck;
 
 private:
 	static C_MYWIN* m_pMyWin;

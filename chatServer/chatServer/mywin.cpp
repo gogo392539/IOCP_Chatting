@@ -13,7 +13,8 @@ C_MYWIN::C_MYWIN() :
 	m_hEditUserLoginList(NULL),
 	m_cMainServer(),
 	m_cJoinServer(),
-	m_cDBServer()
+	m_cDBServer(),
+	m_cNetVoiceServer()
 {
 }
 
@@ -72,25 +73,33 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (GET_X_LPARAM(wParam))
 		{
 		case IDC_BTN_SERVEREND:
+		{
 			m_cMainServer.serverEnd();
 			m_cMainServer.closeClient();
 			m_cJoinServer.serverEnd();
 			m_cJoinServer.closeClient();
+			m_cNetVoiceServer.serverEnd();
 			DestroyWindow(m_hWnd);
+		}
 			break;
 		case IDC_BTN_SERVERSTART:
+		{
 
+		}
 			break;
 		case IDC_BTN_SHOWLIST:
+		{
 			SetWindowText(m_hEditUserJoinList, L"");
 			SetWindowText(m_hEditUserLoginList, L"");
 			m_cDBServer.selectJoinUser(m_hEditUserJoinList);
 			m_cDBServer.selectLoginUser(m_hEditUserLoginList);
-
+		}
 			break;
 		case IDC_BTN_ERASELIST:
+		{
 			SetWindowText(m_hEditUserJoinList, L"");
 			SetWindowText(m_hEditUserLoginList, L"");
+		}
 			break;
 		}
 	}
@@ -147,9 +156,10 @@ bool C_MYWIN::init(HINSTANCE hInstance)
 		return FALSE;
 
 	m_hInstance = hInstance;
+	m_cDBServer.init();
 	m_cMainServer.init(m_hWnd);
 	m_cJoinServer.init(m_hWnd);
-	m_cDBServer.init();
+	m_cNetVoiceServer.init(m_hWnd);
 
 	ShowWindow(m_hWnd, SW_SHOWDEFAULT);
 	UpdateWindow(m_hWnd);
@@ -171,4 +181,5 @@ void C_MYWIN::release()
 {
 	m_cMainServer.release();
 	m_cJoinServer.release();
+	m_cNetVoiceServer.release();
 }

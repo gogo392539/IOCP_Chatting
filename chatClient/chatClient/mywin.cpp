@@ -22,10 +22,10 @@ C_MYWIN::C_MYWIN() :
 	m_strInputText{},
 	m_strChatText{},
 	m_nInputTextLen(),
-	m_bVoiceStart(),
-	m_bVoiceEnd(),
+	m_bVoiceCheck(true),
 	m_cNetChat(),
-	m_cNetJoin()
+	m_cNetJoin(),
+	m_cNetVoice()
 {
 }
 

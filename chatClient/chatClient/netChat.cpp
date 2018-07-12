@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
-const char* C_NET_CHAT::SERVER_IP = "192.168.1.145";
+//const char* C_NET_CHAT::SERVER_IP = "192.168.1.145";
+const char* C_NET_CHAT::SERVER_IP = "192.168.0.222";
 
 C_NET_CHAT::C_NET_CHAT() :
 	m_sockClient(),
@@ -115,20 +116,6 @@ void C_NET_CHAT::sendMsgMessage(int nMsgLen, LPCWSTR wstrMsg)
 	}
 }
 
-void C_NET_CHAT::sendVoiceCheckMessage(E_PACKET_TYPE eType)
-{
-	S_VOICE_PACKET sVoicePacket = {};
-	sVoicePacket.eType = eType;
-	sVoicePacket.nSerialId = m_nMyId;
-	int nRetval = send(m_sockClient, (const char*)&sVoicePacket, E_VOICE_PACKET_SIZE, 0);
-	if (nRetval == SOCKET_ERROR)
-	{
-		int nErrNo = WSAGetLastError();
-		//errorMessage("send error", nErrNo, __LINE__);
-		exit(1);
-	}
-}
-
 bool C_NET_CHAT::getLoginSuccessCheck()
 {
 	return m_bLoginSuccess;
@@ -225,16 +212,6 @@ void C_NET_CHAT::workerRecvThread()
 		case E_PACKET_TYPE::E_LOGOUT:
 		{
 			m_bWorkThread = false;
-		}
-			break;
-		case E_PACKET_TYPE::E_VOICE_ACT:
-		{
-
-		}
-			break;
-		case E_PACKET_TYPE::E_VOICE_DEACT:
-		{
-
 		}
 			break;
 		}

@@ -4,6 +4,7 @@
 #include "mainServer.h"
 #include "joinServer.h"
 #include "dbServer.h"
+#include "netVoice.h"
 
 class C_MYWIN
 {
@@ -20,9 +21,10 @@ private:
 	HWND		m_hBtnEraseList;
 
 private:
-	C_MAINSERVER m_cMainServer;
-	C_JOIN_SERVER m_cJoinServer;
-	C_DB_SERVER m_cDBServer;
+	C_MAINSERVER		m_cMainServer;
+	C_JOIN_SERVER		m_cJoinServer;
+	C_NET_VOICE_SERVER	m_cNetVoiceServer;
+	C_DB_SERVER			m_cDBServer;
 
 private:
 	static C_MYWIN* m_pMyWin;
