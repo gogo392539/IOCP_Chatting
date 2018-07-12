@@ -32,8 +32,9 @@ bool C_DB_SERVER::init()
 {
 	int	nQuery_stat = 0;
 	mysql_init(&m_mySqlConn);
-
+	
 	m_pMySqlConn = mysql_real_connect(&m_mySqlConn, m_strDB_HOST, m_strDB_USER, m_strDB_PASS, m_strDB_SCHEMA, 3306, (char*)NULL, 0);
+	printf("%s \n", mysql_get_server_info(m_pMySqlConn));
 	if (m_pMySqlConn == NULL)
 	{
 		fprintf(stderr, "Mysql connection error : %s", mysql_error(&m_mySqlConn));
