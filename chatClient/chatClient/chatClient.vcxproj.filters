@@ -25,6 +25,9 @@
     <Filter Include="netChat">
       <UniqueIdentifier>{75d3573f-ecfe-404c-a507-0ee03c72f53d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="netVoice">
+      <UniqueIdentifier>{7b9fd04c-b59a-42f7-938f-72dfd06c686e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -52,10 +55,10 @@
       <Filter>netJoin</Filter>
     </ClInclude>
     <ClInclude Include="voice.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>netVoice</Filter>
     </ClInclude>
     <ClInclude Include="netVoice.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>netVoice</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -83,11 +86,11 @@
     <ClCompile Include="netJoin.cpp">
       <Filter>netJoin</Filter>
     </ClCompile>
-    <ClCompile Include="voice.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="netVoice.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>netVoice</Filter>
+    </ClCompile>
+    <ClCompile Include="voice.cpp">
+      <Filter>netVoice</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,8 @@
 
 //const char* C_NET_JOIN::SERVER_IP = "192.168.1.145";
 //const char* C_NET_JOIN::SERVER_IP = "192.168.0.222";
-const char* C_NET_JOIN::SERVER_IP = "172.30.1.20";
+//const char* C_NET_JOIN::SERVER_IP = "172.30.1.20";
+const char* C_NET_JOIN::SERVER_IP = "172.30.125.156";
 
 C_NET_JOIN::C_NET_JOIN() :
 	m_sockClient(),
