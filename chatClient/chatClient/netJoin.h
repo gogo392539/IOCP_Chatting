@@ -5,9 +5,6 @@
 class C_NET_JOIN
 {
 private:
-	static const char* SERVER_IP;
-
-private:
 	SOCKET			m_sockClient;
 	std::thread*	m_threadRecv;
 

@@ -150,7 +150,7 @@ LRESULT C_MYWIN::myJoinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			//NICKNAME 중복 확인 network
 			WCHAR wstrNick[13] = {};
 			int nNickLen = 0;
-			GetWindowText(m_hEditJoinId, wstrNick, 13);
+			GetWindowText(m_hEditJoinNick, wstrNick, 13);
 			nNickLen = lstrlenW(wstrNick);
 			m_cNetJoin.sendNickCheckMessage(wstrNick, nNickLen);
 		}

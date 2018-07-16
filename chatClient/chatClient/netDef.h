@@ -1,5 +1,7 @@
 #pragma once
 
+static const char* SERVER_IP = "192.168.1.149";
+
 enum
 {
 	E_PACKET_TYPE_LENGTH_SIZE	= 4,

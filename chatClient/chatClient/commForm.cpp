@@ -75,8 +75,11 @@ LRESULT C_MYWIN::myCommProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			m_cNetChat.sendLogoutMessage();
 			m_cNetChat.release();
 
-			m_cNetVoice.serverEnd();
-			m_cNetVoice.release();
+			if (!m_bVoiceCheck)
+			{
+				m_cNetVoice.serverEnd();
+				m_cNetVoice.release();
+			}
 
 			m_bVoiceCheck = true;
 

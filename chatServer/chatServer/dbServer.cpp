@@ -124,7 +124,7 @@ bool C_DB_SERVER::selectUserNickName(const std::wstring & wstrUserNickname)
 	WCHAR wstrQuery[100] = {};
 	char strQuery[200] = {};
 
-	swprintf_s(wstrQuery, 100, L"select user_nickname from %ws where user_id = '%ws'", m_wstrDB_TABLE, wstrUserNickname.c_str());
+	swprintf_s(wstrQuery, 100, L"select user_nickname from %ws where user_nickname = '%ws'", m_wstrDB_TABLE, wstrUserNickname.c_str());
 
 	wcharToChar(strQuery, wstrQuery);
 

@@ -7,9 +7,6 @@
 class C_NET_VOICE
 {
 private:
-	static const char* SERVER_IP;
-
-private:
 	SOCKET			m_sockUdp;
 	SOCKADDR_IN		m_sockAddrServerInfo;
 	HWND			m_hWnd;

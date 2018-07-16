@@ -1,10 +1,5 @@
 #include "stdafx.h"
 
-//const char* C_NET_CHAT::SERVER_IP = "192.168.1.145";
-//const char* C_NET_CHAT::SERVER_IP = "192.168.0.222";
-//const char* C_NET_CHAT::SERVER_IP = "172.30.1.20";
-const char* C_NET_CHAT::SERVER_IP = "172.30.125.156";
-
 C_NET_CHAT::C_NET_CHAT() :
 	m_sockClient(),
 	m_threadRecv(),
