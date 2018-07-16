@@ -16,7 +16,6 @@ private:
 	HWND		m_hEditUserLoginList;
 	
 	HWND		m_hBtnServerEnd;
-	HWND		m_hBtnServerStart;
 	HWND		m_hBtnShowList;
 	HWND		m_hBtnEraseList;
 

@@ -7,7 +7,6 @@ C_MYWIN::C_MYWIN() :
 	m_hWnd(NULL),
 	m_hBtnEraseList(NULL),
 	m_hBtnServerEnd(NULL),
-	m_hBtnServerStart(NULL),
 	m_hBtnShowList(NULL),
 	m_hEditUserJoinList(NULL),
 	m_hEditUserLoginList(NULL),
@@ -60,8 +59,6 @@ LRESULT C_MYWIN::myProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		m_hBtnServerEnd = CreateWindow(TEXT("button"), L"Server 종료", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 30, 320, 100, 20, hWnd,
 			(HMENU)IDC_BTN_SERVEREND, m_hInstance, NULL);
-		m_hBtnServerStart = CreateWindow(TEXT("button"), L"Server 시작", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 155, 320, 100, 20, hWnd,
-			(HMENU)IDC_BTN_SERVERSTART, m_hInstance, NULL);
 		m_hBtnShowList = CreateWindow(TEXT("button"), L"List 보기", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 310, 320, 100, 20, hWnd,
 			(HMENU)IDC_BTN_SHOWLIST, m_hInstance, NULL);
 		m_hBtnEraseList = CreateWindow(TEXT("button"), L"List 지우기", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 435, 320, 100, 20, hWnd,
